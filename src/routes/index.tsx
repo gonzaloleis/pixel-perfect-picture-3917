@@ -4,12 +4,12 @@ import { useCallback } from "react";
 import { Deck } from "@/components/deck/Deck";
 import { clampPos, type DeckPos } from "@/lib/deck-nav";
 
-type Search = { slide?: number; step?: number };
+type Search = { slide?: number | undefined; step?: number | undefined };
 
 export const Route = createFileRoute("/")({
   validateSearch: (s: Record<string, unknown>): Search => ({
-    slide: s.slide !== undefined ? Number(s.slide) || 1 : undefined,
-    step: s.step !== undefined ? Number(s.step) || 1 : undefined,
+    slide: s["slide"] !== undefined ? Number(s["slide"]) || 1 : undefined,
+    step: s["step"] !== undefined ? Number(s["step"]) || 1 : undefined,
   }),
   head: () => ({
     meta: [

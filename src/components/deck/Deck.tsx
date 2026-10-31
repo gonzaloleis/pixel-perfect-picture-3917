@@ -35,7 +35,7 @@ export function Deck({ pos, onChange }: { pos: DeckPos; onChange: (p: DeckPos) =
 
   useEffect(() => {
     chanRef.current?.postMessage({ type: "state", pos } satisfies DeckMessage);
-    const meta = slides[pos.slide - 1];
+    const meta = slides[pos.slide - 1]!;
     document.title = `${pos.slide}/${slides.length} — ${meta.name} · CIPRI Project Plan`;
   }, [pos]);
 
@@ -97,10 +97,10 @@ export function Deck({ pos, onChange }: { pos: DeckPos; onChange: (p: DeckPos) =
     <div
       className={cn("fixed inset-0 bg-letterbox select-none", hideCursor && "cursor-none")}
       onClick={() => !grid && next()}
-      onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
+      onTouchStart={(e) => (touchX.current = e.touches[0]?.clientX ?? null)}
       onTouchEnd={(e) => {
         if (touchX.current == null) return;
-        const d = e.changedTouches[0].clientX - touchX.current;
+        const d = (e.changedTouches[0]?.clientX ?? touchX.current) - touchX.current;
         if (Math.abs(d) > 50) (d < 0 ? next : prev)();
         touchX.current = null;
       }}

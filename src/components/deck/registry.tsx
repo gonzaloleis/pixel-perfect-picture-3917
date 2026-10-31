@@ -19,11 +19,11 @@ const components: Record<number, ComponentType<SlideProps>> = {
   10: Slide10,
 };
 
-export const metaOf = (id: number): SlideMeta => slides[id - 1];
+export const metaOf = (id: number): SlideMeta => slides[id - 1]!;
 
 /** One 1920×1080 slide: background, optional glow, content, grain, sample-data tag. */
 export function SlideFrame({ id, step, isStatic = false }: { id: number; step: number; isStatic?: boolean }) {
-  const Comp = components[id];
+  const Comp = components[id] ?? Slide1;
   const meta = metaOf(id);
   return (
     <StaticContext.Provider value={isStatic}>

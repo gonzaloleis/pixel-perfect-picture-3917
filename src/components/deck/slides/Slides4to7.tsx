@@ -288,14 +288,14 @@ const PT = 500;
 const PB = 900;
 
 function smooth(pts: [number, number][]) {
-  let d = `M ${pts[0][0]} ${pts[0][1]}`;
+  let d = `M ${pts[0]![0]} ${pts[0]![1]}`;
   for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[i - 1] ?? pts[i];
-    const p1 = pts[i];
-    const p2 = pts[i + 1];
+    const p1 = pts[i]!;
+    const p2 = pts[i + 1]!;
+    const p0 = pts[i - 1] ?? p1;
     const p3 = pts[i + 2] ?? p2;
-    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
-    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    const c1: [number, number] = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2: [number, number] = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
     d += ` C ${c1[0]} ${c1[1]} ${c2[0]} ${c2[1]} ${p2[0]} ${p2[1]}`;
   }
   return d;
@@ -330,7 +330,7 @@ export function Slide7({ step }: SlideProps) {
   const preX = xm(s7.prefinancing.month);
   const preIdx = months.indexOf(s7.prefinancing.month);
   const prePaid = [...pre].reverse().find((p) => months.indexOf(p.month) <= preIdx)?.value ?? 0;
-  const preY = (y(s7.bcws[preIdx][1]) + y(prePaid)) / 2;
+  const preY = (y(s7.bcws[preIdx]?.[1] ?? 0) + y(prePaid)) / 2;
   const [preA, preB] = s7.prefinancing.label.split(" · ");
 
   const chartOn = step >= 2;
@@ -404,10 +404,10 @@ export function Slide7({ step }: SlideProps) {
                 </text>
               );
             })}
-            <text x={PR + 16} y={y(s7.bcws[n - 1][1]) - 10} className="k-label fill-ink text-[17px]">
+            <text x={PR + 16} y={y(s7.bcws[n - 1]?.[1] ?? 0) - 10} className="k-label fill-ink text-[17px]">
               {s7.lineLabels.bcws}
             </text>
-            <text x={PR + 16} y={y(pre[pre.length - 1].value) + 24} className="k-label fill-mint text-[17px]">
+            <text x={PR + 16} y={y(pre[pre.length - 1]?.value ?? 0) + 24} className="k-label fill-mint text-[17px]">
               {s7.lineLabels.payments}
             </text>
             <text x={preX - 200} y={preY - 4} className="k-label fill-amber text-[17px]">

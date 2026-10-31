@@ -76,7 +76,7 @@ function Presenter() {
     setElapsed(0);
   };
 
-  const meta = slides[pos.slide - 1];
+  const meta = slides[pos.slide - 1]!;
   const upcoming = nextPos(pos);
   const isLast = upcoming.slide === pos.slide && upcoming.step === pos.step;
   const nextSlide = upcoming.slide !== pos.slide ? upcoming.slide : pos.slide < slides.length ? pos.slide + 1 : null;
@@ -123,7 +123,7 @@ function Presenter() {
             </div>
             {nextSlide && upcoming.slide === pos.slide && (
               <span className="font-mono text-xs tracking-[0.12em] text-ink-2 uppercase">
-                Then: {nextSlide} · {slides[nextSlide - 1].name}
+                Then: {nextSlide} · {slides[nextSlide - 1]?.name}
               </span>
             )}
           </div>

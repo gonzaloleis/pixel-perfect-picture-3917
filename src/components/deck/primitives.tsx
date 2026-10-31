@@ -31,7 +31,7 @@ export function Build({
   step: number;
   i?: number;
   className?: string;
-  style?: CSSProperties;
+  style?: CSSProperties | undefined;
   children?: ReactNode;
   as?: "div" | "span";
 }) {
@@ -64,7 +64,7 @@ export function Build({
 const NUM = /\d[\d,]*(?:\.\d+)?/g;
 
 function formatLike(sample: string, value: number) {
-  const decimals = sample.includes(".") ? sample.split(".")[1].length : 0;
+  const decimals = sample.includes(".") ? (sample.split(".")[1] ?? "").length : 0;
   const grouped = sample.includes(",");
   return value.toLocaleString("en-US", {
     minimumFractionDigits: decimals,
