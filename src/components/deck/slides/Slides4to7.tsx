@@ -410,10 +410,10 @@ export function Slide7({ step }: SlideProps) {
             <text x={PR + 16} y={y(pre[pre.length - 1]?.value ?? 0) + 24} className="k-label fill-mint text-[17px]">
               {s7.lineLabels.payments}
             </text>
-            <text x={preX - 200} y={preY - 4} className="k-label fill-amber text-[17px]">
+            <text x={preX - 200} y={preY - 4} className="k-label fill-amber text-[17px] normal-case">
               {preA} ·
             </text>
-            <text x={preX - 200} y={preY + 24} className="k-label fill-amber text-[17px]">
+            <text x={preX - 200} y={preY + 24} className="k-label fill-amber text-[17px] normal-case">
               {preB}
             </text>
           </g>
