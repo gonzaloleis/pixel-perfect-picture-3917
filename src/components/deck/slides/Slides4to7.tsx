@@ -217,12 +217,10 @@ export function Slide6({ step }: SlideProps) {
       <svg className="absolute inset-0" width={1920} height={1080} viewBox="0 0 1920 1080">
         {segs.map((s, idx) => (
           <g key={s.name} style={{ opacity: s.tone }}>
-            <DrawPath d={arc(s.a0, s.a1)} active={step >= 1} className="stroke-ink" duration={0.8} delay={idx * 0.25} />
+            <DrawPath d={arc(s.a0, s.a1)} active={step >= 1} className="stroke-ink [stroke-width:40px]" duration={0.8} delay={idx * 0.25} />
           </g>
         ))}
-        <style>{`.k-donut path{stroke-width:40px}`}</style>
       </svg>
-      <svg className="k-donut pointer-events-none absolute inset-0" width={1920} height={1080} viewBox="0 0 1920 1080" />
       <Build at={1} step={step} className="absolute flex w-[300px] flex-col items-center text-center" style={{ left: CX - 150, top: CY - 50 }}>
         <span className="k-figure text-ink">
           <CountText text={s6.centre.value} active={step >= 1} />
@@ -253,7 +251,7 @@ export function Slide6({ step }: SlideProps) {
       <Build at={2} step={step} className="absolute top-[290px] left-[1100px] w-[680px]">
         <div className="flex h-[28px] w-full gap-[3px]">
           <div className="h-full rounded-l-md bg-ink" style={{ width: `${(s6.stack.direct.value / total) * 100}%` }} />
-          <div className="h-full flex-1 rounded-r-md bg-amber/0 bg-ink-2" />
+          <div className="h-full flex-1 rounded-r-md bg-ink-2" />
         </div>
         <div className="mt-5 flex justify-between gap-6">
           <div>
@@ -315,11 +313,8 @@ export function Slide7({ step }: SlideProps) {
   const costArea = `${cost} L ${xi(n - 1)} ${PB} L ${xi(0)} ${PB} Z`;
 
   let pay = `M ${xi(0)} ${y(0)}`;
-  let clip = `M ${xi(0)} ${PT - 40}`;
   s7.payments.forEach((p) => {
-    const x = xm(p.month);
-    pay += ` H ${x} V ${y(p.value)}`;
-    clip += ` L ${x} ${y(0) - (y(0) - (clip.includes("V") ? 0 : 0))}`;
+    pay += ` H ${xm(p.month)} V ${y(p.value)}`;
   });
   // Region above the payments step line (used to clip the pre-financing fill).
   let above = `M ${xi(0)} ${PT - 40} L ${xi(0)} ${y(0)}`;
@@ -328,7 +323,6 @@ export function Slide7({ step }: SlideProps) {
     above += ` H ${x} V ${y(p.value)}`;
   });
   above += ` H ${xi(n - 1) + 2} V ${PT - 40} Z`;
-  void clip;
 
   const pre = s7.payments;
   const preX = xm(s7.prefinancing.month);
@@ -361,9 +355,6 @@ export function Slide7({ step }: SlideProps) {
             <path d={above} />
           </clipPath>
         </defs>
-        <Build at={2} step={step} as="span">
-          {null}
-        </Build>
         {chartOn && (
           <g>
             {s7.yTicks.map((v) => (
