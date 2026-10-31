@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { motion } from "framer-motion";
 import { s4, s5, s6, s7 } from "@/content/slides";
 import { cn } from "@/lib/utils";
@@ -302,6 +303,7 @@ function smooth(pts: [number, number][]) {
 
 export function Slide7({ step }: SlideProps) {
   const isStatic = useIsStatic();
+  const clipId = "k-above-pay-" + useId().replace(/[^a-zA-Z0-9]/g, "");
   const n = s7.bcws.length;
   const months = s7.bcws.map(([m]) => m);
   const xi = (i: number) => PL + (i * (PR - PL)) / (n - 1);
@@ -333,7 +335,7 @@ export function Slide7({ step }: SlideProps) {
 
   const chartOn = step >= 2;
   const fill = (
-    <path d={costArea} className="fill-amber/12" clipPath="url(#k-above-pay)" />
+    <path d={costArea} className="fill-amber/12" clipPath={`url(#${clipId})`} />
   );
 
   return (
@@ -351,7 +353,7 @@ export function Slide7({ step }: SlideProps) {
 
       <svg className="absolute inset-0" width={1920} height={1080} viewBox="0 0 1920 1080">
         <defs>
-          <clipPath id="k-above-pay">
+          <clipPath id={clipId}>
             <path d={above} />
           </clipPath>
         </defs>
