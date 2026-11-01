@@ -121,6 +121,14 @@ export function Slide4({ step }: SlideProps) {
           )}
           {step >= s4.marker.step && <line x1={markerX} x2={markerX} y1={384} y2={800} className="stroke-amber" strokeWidth={3} strokeLinecap="round" />}
 
+          {/* Soft cursor dot travelling along the timeline */}
+          {!isStatic && (
+            <motion.g initial={{ x: X0 }} animate={{ x: cursorX }} transition={{ duration: CURSOR_S, ease: EASE }}>
+              <circle cx={0} cy={AXIS_Y} r={26} className="fill-blue/15" />
+              <circle cx={0} cy={AXIS_Y} r={12} className="fill-blue" />
+            </motion.g>
+          )}
+
           {/* Milestone pins: dropped when the cursor lands, with a gentle pulse */}
           {s4.milestones.map((m) => {
             if (step < m.step) return null;
@@ -155,13 +163,6 @@ export function Slide4({ step }: SlideProps) {
             );
           })}
 
-          {/* Soft cursor dot travelling along the timeline */}
-          {!isStatic && (
-            <motion.g initial={{ x: X0 }} animate={{ x: cursorX }} transition={{ duration: CURSOR_S, ease: EASE }}>
-              <circle cx={0} cy={AXIS_Y - 44} r={22} className="fill-blue/15" />
-              <circle cx={0} cy={AXIS_Y - 44} r={9} className="fill-blue" />
-            </motion.g>
-          )}
         </svg>
 
         <div className="k-label absolute text-ink-2" style={{ left: X0, top: AXIS_Y - 92 }}>
