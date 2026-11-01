@@ -13,6 +13,8 @@ export function Deck({ pos, onChange }: { pos: DeckPos; onChange: (p: DeckPos) =
   const [recording, setRecording] = useState(false);
   const [idle, setIdle] = useState(false);
   const posRef = useRef(pos);
+  const dirRef = useRef(1);
+  if (pos.slide !== posRef.current.slide) dirRef.current = pos.slide > posRef.current.slide ? 1 : -1;
   posRef.current = pos;
   const chanRef = useRef<BroadcastChannel | null>(null);
 
@@ -106,22 +108,28 @@ export function Deck({ pos, onChange }: { pos: DeckPos; onChange: (p: DeckPos) =
       }}
     >
       <ScaledStage>
-        <AnimatePresence initial={false}>
+        <AnimatePresence initial={false} custom={dirRef.current}>
           <motion.div
             key={pos.slide}
             className="absolute inset-0"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.6, ease: EASE }}
+            custom={dirRef.current}
+            variants={{
+              enter: (d: number) => ({ opacity: 0, x: 40 * d }),
+              center: { opacity: 1, x: 0 },
+              exit: (d: number) => ({ opacity: 0, x: -40 * d }),
+            }}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.5, ease: EASE }}
           >
             <SlideFrame id={pos.slide} step={pos.step} />
           </motion.div>
         </AnimatePresence>
         {!recording && (
-          <div className="pointer-events-none absolute bottom-0 left-0 h-[2px] w-full">
+          <div className="pointer-events-none absolute bottom-0 left-0 h-[3px] w-full bg-track">
             <motion.div
-              className="h-full bg-ink/60"
+              className="h-full bg-blue/70"
               initial={false}
               animate={{ width: `${progressOf(pos) * 100}%` }}
               transition={{ duration: 0.6, ease: EASE }}

@@ -1,9 +1,13 @@
 import { createContext, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, type MotionStyle } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { SAMPLE_DATA_LABEL, type Accent, type CaptureSlot } from "@/content/slides";
 
 export const EASE = [0.22, 1, 0.36, 1] as const;
+/** Soft, quick, never bouncy. */
+export const SPRING = { type: "spring", stiffness: 260, damping: 28, mass: 1 } as const;
+/** First-step content waits for the title to land on its own. */
+export const AFTER_TITLE = 0.38;
 
 /** When true (thumbnails, print), everything renders in its final state with no motion. */
 export const StaticContext = createContext(false);
@@ -13,15 +17,24 @@ export type SlideProps = { step: number };
 
 export const accentText: Record<Accent, string> = {
   ink: "text-ink",
+  blue: "text-blue",
   amber: "text-amber",
   mint: "text-mint",
 };
 
-/** Fade + 12px rise when `step >= at`. `i` staggers siblings by 70ms. */
+export const accentPill: Record<Accent, string> = {
+  ink: "bg-ink/10 text-ink",
+  blue: "bg-blue/10 text-blue",
+  amber: "bg-amber/10 text-amber",
+  mint: "bg-mint/10 text-mint",
+};
+
+/** Fade + scale 0.98→1 (spring) when `step >= at`. `i` staggers siblings by 70ms. */
 export function Build({
   at,
   step,
   i = 0,
+  delay = 0,
   className,
   style,
   children,
@@ -30,7 +43,8 @@ export function Build({
   at: number;
   step: number;
   i?: number;
-  className?: string;
+  delay?: number;
+  className?: string | undefined;
   style?: CSSProperties | undefined;
   children?: ReactNode;
   as?: "div" | "span";
@@ -47,13 +61,14 @@ export function Build({
     );
   }
   const M = as === "span" ? motion.span : motion.div;
+  const base = at === 1 ? AFTER_TITLE : 0;
   return (
     <M
       className={className}
-      style={style}
-      initial={false}
-      animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-      transition={{ duration: 0.45, ease: EASE, delay: visible ? i * 0.07 : 0 }}
+      style={(style ?? {}) as MotionStyle}
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={visible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.98 }}
+      transition={{ ...SPRING, opacity: { duration: 0.35, ease: EASE, delay: visible ? base + delay + i * 0.07 : 0 }, delay: visible ? base + delay + i * 0.07 : 0 }}
       aria-hidden={!visible}
     >
       {children}
@@ -74,7 +89,17 @@ function formatLike(sample: string, value: number) {
 }
 
 /** Renders `text` exactly, counting every number in it up from 0 when it becomes active. */
-export function CountText({ text, active = true, duration = 900 }: { text: string; active?: boolean; duration?: number }) {
+export function CountText({
+  text,
+  active = true,
+  duration = 900,
+  delay = 0,
+}: {
+  text: string;
+  active?: boolean;
+  duration?: number;
+  delay?: number;
+}) {
   const isStatic = useIsStatic();
   const reduce = useReducedMotion();
   const skip = isStatic || reduce;
@@ -90,15 +115,15 @@ export function CountText({ text, active = true, duration = 900 }: { text: strin
       setP(0);
       return;
     }
-    const t0 = performance.now();
+    const t0 = performance.now() + delay * 1000;
     const tick = (t: number) => {
-      const k = Math.min((t - t0) / duration, 1);
+      const k = Math.min(Math.max((t - t0) / duration, 0), 1);
       setP(1 - Math.pow(1 - k, 3));
       if (k < 1) raf.current = requestAnimationFrame(tick);
     };
     raf.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf.current);
-  }, [active, skip, duration]);
+  }, [active, skip, duration, delay]);
 
   if (p >= 1) return <span className="tabular-nums">{text}</span>;
   return (
@@ -108,15 +133,36 @@ export function CountText({ text, active = true, duration = 900 }: { text: strin
   );
 }
 
+export function Pill({ accent, children, className }: { accent: Accent; children: ReactNode; className?: string }) {
+  return <span className={cn("k-pill k-label", accentPill[accent], className)}>{children}</span>;
+}
+
 export function SampleDataTag() {
   return <div className="k-label pointer-events-none absolute right-12 bottom-9 text-ink-2">{SAMPLE_DATA_LABEL}</div>;
 }
 
-export function Title({ children, className }: { children: ReactNode; className?: string }) {
-  return <h2 className={cn("k-title absolute top-[112px] left-[140px] text-ink", className)}>{children}</h2>;
+/** Slide title: the hero of the slide, enters alone. */
+export function Title({ children, className, center = false }: { children: ReactNode; className?: string; center?: boolean }) {
+  const isStatic = useIsStatic();
+  const cls = cn(
+    "k-title absolute top-[96px] text-ink",
+    center ? "left-0 w-full text-center" : "left-[140px]",
+    className,
+  );
+  if (isStatic) return <h2 className={cls}>{children}</h2>;
+  return (
+    <motion.h2 className={cls} initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={SPRING}>
+      {children}
+    </motion.h2>
+  );
 }
 
-/** MS Project screenshot slot: real image if /captures/<file> exists, dashed placeholder otherwise. */
+/** Large rounded card that holds the "product" on slides 3–7. */
+export function StageCard({ className }: { className?: string }) {
+  return <div className={cn("k-stage-card absolute top-[232px] left-[100px] h-[768px] w-[1720px]", className)} />;
+}
+
+/** MS Project screenshot slot: app-window frame if /captures/<file> exists, dashed placeholder otherwise. */
 export function Capture({ slot, width, className }: { slot: CaptureSlot; width?: number; className?: string }) {
   const w = width ?? slot.width;
   const h = Math.round((w * slot.height) / slot.width);
@@ -136,8 +182,15 @@ export function Capture({ slot, width, className }: { slot: CaptureSlot; width?:
 
   if (state === "ok") {
     return (
-      <div className={cn("k-capture-filled overflow-hidden p-3", className)} style={{ width: w, height: h }}>
-        <img src={src} alt={slot.description} className="h-full w-full object-contain" />
+      <div className={cn("k-window flex flex-col overflow-hidden", className)} style={{ width: w, height: h }}>
+        <div className="flex h-[34px] shrink-0 items-center gap-2 border-b border-hair px-4">
+          <span className="h-[10px] w-[10px] rounded-full bg-track" />
+          <span className="h-[10px] w-[10px] rounded-full bg-track" />
+          <span className="h-[10px] w-[10px] rounded-full bg-track" />
+        </div>
+        <div className="min-h-0 flex-1 p-2">
+          <img src={src} alt={slot.description} className="h-full w-full object-contain" />
+        </div>
       </div>
     );
   }
@@ -146,7 +199,7 @@ export function Capture({ slot, width, className }: { slot: CaptureSlot; width?:
       className={cn("k-capture-empty flex flex-col items-center justify-center gap-4 px-10 text-center", className)}
       style={{ width: w, height: h }}
     >
-      <div className="k-label text-amber">MS PROJECT CAPTURE</div>
+      <div className="k-label text-blue">MS PROJECT CAPTURE</div>
       <div className="k-small text-ink-2">{slot.description}</div>
     </div>
   );
@@ -167,13 +220,15 @@ export function DrawPath({
   delay?: number;
 }) {
   const isStatic = useIsStatic();
-  if (isStatic) return active ? <path d={d} className={className} fill="none" /> : null;
+  if (isStatic) return active ? <path d={d} className={className} fill="none" strokeLinecap="round" strokeLinejoin="round" /> : null;
   return (
     <motion.path
       d={d}
       className={className}
       fill="none"
-      initial={false}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      initial={{ pathLength: 0, opacity: 0 }}
       animate={{ pathLength: active ? 1 : 0, opacity: active ? 1 : 0 }}
       transition={{ pathLength: { duration, ease: EASE, delay }, opacity: { duration: 0.2, delay } }}
     />

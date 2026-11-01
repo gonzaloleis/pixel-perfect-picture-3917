@@ -29,7 +29,7 @@ export const captures = {
   cashFlow: { file: "cash-flow.png", description: "Cash Flow report · baseline cost", width: 520, height: 320 },
 } satisfies Record<string, CaptureSlot>;
 
-export type Accent = "ink" | "amber" | "mint";
+export type Accent = "ink" | "blue" | "amber" | "mint";
 
 /* ---------------- Slide 1 ---------------- */
 export const s1 = {
@@ -70,6 +70,13 @@ export const s3 = {
     ["09", "White march, drill and acceptance"],
   ] as const,
   capture: captures.gantt,
+  /** Planning-assistant status line; shown while checked phases < `until`. */
+  status: [
+    { until: 4, text: "Building WBS…" },
+    { until: 7, text: "Linking dependencies…" },
+    { until: 10, text: "Assigning resources…" },
+    { until: 11, text: "Baseline saved" },
+  ],
   stats: [
     { value: "142", unit: "tasks" },
     { value: "6", unit: "milestones" },
