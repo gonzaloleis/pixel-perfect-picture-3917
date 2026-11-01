@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, type MotionStyle } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { SAMPLE_DATA_LABEL, type Accent, type CaptureSlot } from "@/content/slides";
 
@@ -65,7 +65,7 @@ export function Build({
   return (
     <M
       className={className}
-      style={style ?? {}}
+      style={(style ?? {}) as MotionStyle}
       initial={{ opacity: 0, scale: 0.98 }}
       animate={visible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.98 }}
       transition={{ ...SPRING, opacity: { duration: 0.35, ease: EASE, delay: visible ? base + delay + i * 0.07 : 0 }, delay: visible ? base + delay + i * 0.07 : 0 }}
