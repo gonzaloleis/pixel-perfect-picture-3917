@@ -1,13 +1,31 @@
+import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { s8, s9, s10 } from "@/content/slides";
 import { cn } from "@/lib/utils";
-import { Build, CountText, EASE, Title, useIsStatic, type SlideProps } from "../primitives";
+import { AFTER_TITLE, Build, CountText, EASE, Pill, SPRING, Title, useIsStatic, type SlideProps } from "../primitives";
 import { Glow } from "../Glow";
 
 /* ---------------- Slide 8 ---------------- */
 
+function FlipCard({ delay, className, children }: { delay: number; className?: string; children: ReactNode }) {
+  const isStatic = useIsStatic();
+  if (isStatic) return <div className={className}>{children}</div>;
+  return (
+    <div style={{ perspective: 1600 }}>
+      <motion.div
+        className={className}
+        style={{ transformOrigin: "50% 50%" }}
+        initial={{ rotateY: -80, opacity: 0, scale: 0.98 }}
+        animate={{ rotateY: 0, opacity: 1, scale: 1 }}
+        transition={{ ...SPRING, opacity: { duration: 0.3, delay }, delay }}
+      >
+        {children}
+      </motion.div>
+    </div>
+  );
+}
+
 export function Slide8({ step }: SlideProps) {
-  // Running-total waterfall
   let run = 0;
   const bars = s8.waterfall.map((w) => {
     let from: number, to: number;
@@ -27,48 +45,50 @@ export function Slide8({ step }: SlideProps) {
   });
   const min = Math.min(0, ...bars.map((b) => b.lo));
   const max = Math.max(...bars.map((b) => b.hi));
-  const W = 440;
+  const W = 420;
   const sx = (v: number) => ((v - min) / (max - min)) * W;
+  const second = AFTER_TITLE + 0.45;
 
   return (
     <>
-      <Title>{s8.title}</Title>
-      <div className="absolute top-[280px] left-[140px] grid w-[1640px] grid-cols-2 gap-10">
-        <Build at={1} step={step} className="k-card flex h-[330px] flex-col border-mint/40 p-12">
-          <div className="k-label text-mint">{s8.time.label}</div>
+      <Title center>{s8.title}</Title>
+      <div className="absolute top-[260px] left-[160px] grid w-[1600px] grid-cols-2 gap-10">
+        <FlipCard delay={AFTER_TITLE} className="k-card flex h-[330px] flex-col p-12">
+          <div>
+            <Pill accent="mint">{s8.time.label}</Pill>
+          </div>
           <div className="k-lead mt-auto text-ink">{s8.time.headline}</div>
           <div className="k-small mt-4 text-ink-2">{s8.time.detail}</div>
-        </Build>
-        <Build at={1} step={step} i={1} className="k-card flex h-[330px] flex-col border-amber/40 p-12">
-          <div className="k-label text-amber">{s8.cost.label}</div>
-          <div className="k-lead mt-auto text-ink">
-            <CountText text={s8.cost.headline} active={step >= 1} />
+        </FlipCard>
+        <FlipCard delay={second} className="k-card flex h-[330px] flex-col p-12">
+          <div>
+            <Pill accent="amber">{s8.cost.label}</Pill>
           </div>
-          <div className="k-body mt-4 text-amber">{s8.cost.detail}</div>
-        </Build>
+          <div className="k-lead mt-auto text-ink">{s8.cost.headline}</div>
+          <div className="k-body mt-4 font-medium text-amber">
+            <CountText text={s8.cost.detail} active={step >= 1} delay={second + 0.3} duration={1200} />
+          </div>
+        </FlipCard>
       </div>
 
-      <div className="absolute top-[656px] left-[980px] w-[800px]">
+      <Build at={2} step={step} className="k-card absolute top-[630px] left-[960px] w-[800px] px-10 py-5">
         {bars.map((b, idx) => {
-          const tone = b.kind === "result" ? "bg-amber" : b.kind === "total" ? "bg-ink" : "bg-ink-2";
+          const tone = b.kind === "result" ? "bg-amber" : b.kind === "total" ? "bg-blue" : "bg-ink-2/40";
           return (
-            <Build key={b.label} at={2} step={step} i={idx} className="flex h-[54px] items-center border-b border-hair">
-              <div className={cn("k-small w-[360px] shrink-0", b.kind === "result" ? "text-amber" : "text-ink")}>
+            <Build key={b.label} at={2} step={step} i={idx} className="flex h-[52px] items-center border-b border-hair last:border-b-0">
+              <div className={cn("k-small w-[300px] shrink-0 text-[24px]", b.kind === "result" ? "font-medium text-amber" : "text-ink")}>
                 <span className={b.kind === "result" ? "" : "text-ink-2"}>{b.label}</span> {b.text}
               </div>
               <div className="relative h-[14px]" style={{ width: W }}>
                 <div className="absolute top-[-14px] bottom-[-14px] w-px bg-hair" style={{ left: sx(0) }} />
-                <div
-                  className={cn("absolute h-full rounded-[3px]", tone)}
-                  style={{ left: sx(b.lo), width: Math.max(sx(b.hi) - sx(b.lo), 2) }}
-                />
+                <div className={cn("absolute h-full rounded-full", tone)} style={{ left: sx(b.lo), width: Math.max(sx(b.hi) - sx(b.lo), 4) }} />
               </div>
             </Build>
           );
         })}
-      </div>
+      </Build>
 
-      <Build at={3} step={step} className="k-small absolute top-[930px] left-[140px] w-[1640px] text-ink-2">
+      <Build at={3} step={step} className="k-small absolute top-[932px] left-0 w-full text-center text-ink-2">
         {s8.footer}
       </Build>
     </>
@@ -80,7 +100,7 @@ export function Slide8({ step }: SlideProps) {
 function CardColumn({ label, items, at, step }: { label: string; items: string[]; at: number; step: number }) {
   return (
     <div className="flex flex-col gap-4">
-      <Build at={at} step={step} className="k-label mb-2 text-ink-2">
+      <Build at={at} step={step} className="k-label mb-1 text-ink-2">
         {label}
       </Build>
       {items.map((it, idx) => (
@@ -96,11 +116,11 @@ export function Slide9({ step }: SlideProps) {
   return (
     <>
       <Title>{s9.title}</Title>
-      <div className="absolute top-[272px] left-[140px] grid w-[1640px] grid-cols-2 gap-10">
+      <div className="absolute top-[262px] left-[140px] grid w-[1640px] grid-cols-2 gap-10">
         <CardColumn label={s9.missing.label} items={s9.missing.items} at={1} step={step} />
         <CardColumn label={s9.assumptions.label} items={s9.assumptions.items} at={2} step={step} />
       </div>
-      <Build at={2} step={step} i={5} className="k-small absolute top-[940px] left-[140px] text-ink-2">
+      <Build at={2} step={step} i={5} className="k-small absolute top-[948px] left-[140px] text-ink-2">
         {s9.footer}
       </Build>
     </>
@@ -114,13 +134,13 @@ export function Slide10({ step }: SlideProps) {
   const closing = step >= 3;
   const body = (
     <>
-      <Build at={1} step={step} className="absolute top-[250px] left-0 w-full text-center">
-        <h2 className="k-title text-[80px] text-ink">{s10.title}</h2>
-      </Build>
-      <div className="absolute top-[470px] left-[140px] grid w-[1640px] grid-cols-3 gap-10">
+      <Title center className="top-[250px] text-[96px]">
+        {s10.title}
+      </Title>
+      <div className="absolute top-[470px] left-[160px] grid w-[1600px] grid-cols-3 gap-8">
         {s10.cards.map((c, idx) => (
           <Build key={c.date} at={2} step={step} i={idx} className="k-card flex h-[270px] flex-col p-10">
-            <div className="k-label text-ink-2">{c.date}</div>
+            <div className="k-label text-blue">{c.date}</div>
             <div className="k-lead mt-auto text-ink">{c.name}</div>
             <div className="k-small mt-3 text-ink-2">{c.text}</div>
           </Build>
@@ -131,21 +151,16 @@ export function Slide10({ step }: SlideProps) {
 
   return (
     <>
-      <Glow rise={closing} baseY={420} riseY={0} />
+      <Glow rise={closing} />
       {isStatic ? (
         !closing && body
       ) : (
-        <motion.div
-          className="absolute inset-0"
-          initial={false}
-          animate={{ opacity: closing ? 0 : 1 }}
-          transition={{ duration: 0.9, ease: EASE }}
-        >
+        <motion.div className="absolute inset-0" initial={false} animate={{ opacity: closing ? 0 : 1, scale: closing ? 0.98 : 1 }} transition={{ duration: 0.8, ease: EASE }}>
           {body}
         </motion.div>
       )}
-      <Build at={3} step={step} className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <p className="k-display text-[96px] text-ink">{s10.closing.text}</p>
+      <Build at={3} step={step} delay={0.4} className="absolute inset-0 flex flex-col items-center justify-center text-center">
+        <p className="k-title text-[84px] text-ink">{s10.closing.text}</p>
         <p className="k-label mt-10 text-ink-2">{s10.closing.mark}</p>
       </Build>
     </>
