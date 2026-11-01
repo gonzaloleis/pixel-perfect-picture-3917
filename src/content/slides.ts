@@ -70,12 +70,12 @@ export const s3 = {
     ["09", "White march, drill and acceptance"],
   ] as const,
   capture: captures.gantt,
-  /** Planning-assistant status line; `until` = number of checked phases at which it switches. */
+  /** Planning-assistant status line; shown while checked phases < `until`. */
   status: [
     { until: 4, text: "Building WBS…" },
     { until: 7, text: "Linking dependencies…" },
-    { until: 9, text: "Assigning resources…" },
-    { until: 10, text: "Baseline saved" },
+    { until: 10, text: "Assigning resources…" },
+    { until: 11, text: "Baseline saved" },
   ],
   stats: [
     { value: "142", unit: "tasks" },
