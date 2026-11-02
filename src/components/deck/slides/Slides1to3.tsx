@@ -50,10 +50,10 @@ export function Slide2({ step }: SlideProps) {
           >
             <div className="k-small text-ink-2">{r.item}</div>
             <div className="k-small text-ink">
-              {r.count ? <CountText text={r.offer} active={step >= r.step} /> : r.offer}
+              {r.count ? <CountText text={r.offer} active={step >= r.step} duration={2000} /> : r.offer}
             </div>
             <div className={cn("k-small font-medium", r.accent ? accentText[r.accent] : "text-ink")}>
-              {r.count ? <CountText text={r.contract} active={step >= r.step} /> : r.contract}
+              {r.count ? <CountText text={r.contract} active={step >= r.step} duration={2000} /> : r.contract}
             </div>
           </Build>
         ))}
