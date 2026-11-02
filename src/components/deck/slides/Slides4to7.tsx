@@ -442,6 +442,11 @@ export function Slide7({ step }: SlideProps) {
   const tipMonth = (months[Math.round(fi)] ?? "").toUpperCase();
   const drawing = !isStatic && chartOn && p > 0 && p < 1;
   const paymentsDelay = 0.2 + DRAW_S + 0.1;
+  // Revealed (in CSS) once the S-curve has finished drawing; payments line draws in the meantime.
+  const revealStyle = (afterS: number) => ({
+    opacity: p >= 1 ? 1 : 0,
+    transition: isStatic ? "none" : `opacity 600ms ease ${afterS}s`,
+  });
 
   const fill = <path d={costArea} className="fill-amber/12" clipPath={`url(#${clipPay})`} />;
 
@@ -490,24 +495,13 @@ export function Slide7({ step }: SlideProps) {
             )}
           </g>
         )}
-        {chartOn &&
-          (isStatic ? (
-            fill
-          ) : (
-            <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: paymentsDelay + 0.6 }}>
-              {fill}
-            </motion.g>
-          ))}
+        {chartOn && <g style={revealStyle(1.6)}>{fill}</g>}
         {chartOn && (
           <path d={cost} clipPath={`url(#${clipDraw})`} className="fill-none stroke-ink" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" />
         )}
-        <DrawPath d={pay} active={chartOn} className="stroke-mint [stroke-width:3px]" duration={1.2} delay={isStatic ? 0 : paymentsDelay} />
+        <DrawPath d={pay} active={chartOn && p >= 1} className="stroke-mint [stroke-width:3px]" duration={1.2} />
         {chartOn && (
-          <motion.g
-            initial={isStatic ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: isStatic ? 0 : paymentsDelay + 0.5 }}
-          >
+          <g style={revealStyle(1.1)}>
             {s7.payments.map((pm, idx) => {
               const x = xm(pm.month);
               const last = idx === s7.payments.length - 1;
@@ -532,7 +526,7 @@ export function Slide7({ step }: SlideProps) {
             <text x={preX - 200} y={preY + 24} className="k-label fill-amber text-[16px] normal-case">
               {preB}
             </text>
-          </motion.g>
+          </g>
         )}
         {chartOn && p >= 1 && (
           <text x={PR + 16} y={y(s7.bcws[n - 1]?.[1] ?? 0) - 10} className="k-label fill-ink text-[16px]">
