@@ -334,7 +334,7 @@ export function Slide6({ step }: SlideProps) {
             step={step}
             i={idx + 4}
             className={cn("absolute flex flex-col gap-1 whitespace-nowrap", right ? "items-start" : "items-end")}
-            style={{ left: lx, top: ly, transform: `translate(${right ? "0" : "-100%"}, -50%)` }}
+            style={right ? { left: lx, top: ly - 32 } : { right: 1920 - lx, top: ly - 32 }}
           >
             <span className="k-small font-medium text-ink">{s.name}</span>
             <span className="k-label text-ink-2">{s.label}</span>
