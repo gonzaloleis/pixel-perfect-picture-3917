@@ -85,16 +85,16 @@ function Presenter() {
   return (
     <div className="flex min-h-screen flex-col gap-6 bg-stage p-8 font-sans text-ink">
       <div className="flex items-center justify-between">
-        <div className="font-mono text-sm tracking-[0.12em] text-ink-2 uppercase">
-          Slide {pos.slide}/{slides.length} · Step {pos.step}/{meta.steps} · {meta.name}
+        <div className="text-base font-medium text-ink-2">
+          Slide {pos.slide}/{slides.length}, step {pos.step}/{meta.steps}: {meta.name}
         </div>
         <div className="flex items-center gap-4">
-          <span className={cn("font-mono text-5xl tabular-nums", warn ? "text-amber" : "text-ink")}>{fmt(elapsed)}</span>
-          <span className="font-mono text-sm tracking-[0.12em] text-ink-2 uppercase">/ {fmt(TIMER_TARGET_SECONDS)}</span>
-          <button type="button" onClick={() => setRunning((r) => !r)} className="rounded-md border border-hair px-3 py-1.5 font-mono text-xs tracking-[0.12em] text-ink uppercase hover:bg-panel">
+          <span className={cn("text-5xl font-semibold tabular-nums", warn ? "text-amber" : "text-ink")}>{fmt(elapsed)}</span>
+          <span className="text-base font-medium text-ink-2">/ {fmt(TIMER_TARGET_SECONDS)}</span>
+          <button type="button" onClick={() => setRunning((r) => !r)} className="rounded-md border border-hair px-3 py-1.5 text-sm font-medium text-ink hover:bg-panel">
             {running ? "Pause" : "Start"}
           </button>
-          <button type="button" onClick={reset} className="rounded-md border border-hair px-3 py-1.5 font-mono text-xs tracking-[0.12em] text-ink uppercase hover:bg-panel">
+          <button type="button" onClick={reset} className="rounded-md border border-hair px-3 py-1.5 text-sm font-medium text-ink hover:bg-panel">
             Reset
           </button>
         </div>
@@ -102,7 +102,7 @@ function Presenter() {
 
       <div className="grid flex-1 grid-cols-[3fr_2fr] gap-6">
         <div className="flex flex-col gap-3">
-          <span className="font-mono text-xs tracking-[0.12em] text-ink-2 uppercase">Current</span>
+          <span className="text-sm font-medium text-ink-2">Current</span>
           <div className="aspect-video w-full overflow-hidden rounded-lg border border-hair">
             <ScaledStage>
               <SlideFrame id={pos.slide} step={pos.step} isStatic />
@@ -111,8 +111,8 @@ function Presenter() {
         </div>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
-            <span className="font-mono text-xs tracking-[0.12em] text-ink-2 uppercase">
-              {isLast ? "End of deck" : upcoming.slide === pos.slide ? `Next build · step ${upcoming.step}` : "Next slide"}
+            <span className="text-sm font-medium text-ink-2">
+              {isLast ? "End of deck" : upcoming.slide === pos.slide ? `Next build: step ${upcoming.step}` : "Next slide"}
             </span>
             <div className="aspect-video w-full overflow-hidden rounded-lg border border-hair">
               {!isLast && (
@@ -122,13 +122,13 @@ function Presenter() {
               )}
             </div>
             {nextSlide && upcoming.slide === pos.slide && (
-              <span className="font-mono text-xs tracking-[0.12em] text-ink-2 uppercase">
-                Then: {nextSlide} · {slides[nextSlide - 1]?.name}
+              <span className="text-sm font-medium text-ink-2">
+                Then: {nextSlide}. {slides[nextSlide - 1]?.name}
               </span>
             )}
           </div>
           <div className="flex flex-col gap-3">
-            <span className="font-mono text-xs tracking-[0.12em] text-ink-2 uppercase">Notes</span>
+            <span className="text-sm font-medium text-ink-2">Notes</span>
             <p className="text-2xl leading-relaxed text-ink">{meta.notes}</p>
           </div>
         </div>

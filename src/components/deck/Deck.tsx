@@ -38,7 +38,7 @@ export function Deck({ pos, onChange }: { pos: DeckPos; onChange: (p: DeckPos) =
   useEffect(() => {
     chanRef.current?.postMessage({ type: "state", pos } satisfies DeckMessage);
     const meta = slides[pos.slide - 1]!;
-    document.title = `${pos.slide}/${slides.length} — ${meta.name} · CIPRI Project Plan`;
+    document.title = `${pos.slide}/${slides.length} — ${meta.name}, CIPRI Project Plan`;
   }, [pos]);
 
   // Keyboard
@@ -176,8 +176,8 @@ export function Deck({ pos, onChange }: { pos: DeckPos; onChange: (p: DeckPos) =
                       <SlideFrame id={s.id} step={s.steps} isStatic />
                     </ScaledStage>
                   </div>
-                  <span className="font-mono text-xs tracking-[0.12em] text-ink-2 uppercase">
-                    {String(s.id).padStart(2, "0")} · {s.name}
+                  <span className="text-sm font-medium text-ink-2">
+                    {s.id}. {s.name}
                   </span>
                 </button>
               ))}

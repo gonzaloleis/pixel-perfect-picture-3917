@@ -19,8 +19,8 @@ export function Slide1({ step }: SlideProps) {
       <Build at={1} step={step}>
         <p className="k-lead mt-8 font-normal text-ink-2">{s1.subtitle}</p>
       </Build>
-      <Build at={2} step={step} className="mt-20 flex flex-col items-center gap-5">
-        <div className="k-label text-[20px] text-ink-2">{s1.baseline}</div>
+      <Build at={2} step={step} className="mt-20 flex flex-col items-center gap-4">
+        <div className="k-small text-ink-2">{s1.baseline}</div>
         <div className="k-small text-ink-2">{s1.credit}</div>
       </Build>
     </div>
@@ -50,10 +50,10 @@ export function Slide2({ step }: SlideProps) {
           >
             <div className="k-small text-ink-2">{r.item}</div>
             <div className="k-small text-ink">
-              {r.count ? <CountText text={r.offer} active={step >= r.step} /> : r.offer}
+              {r.count ? <CountText text={r.offer} active={step >= r.step} duration={2000} /> : r.offer}
             </div>
             <div className={cn("k-small font-medium", r.accent ? accentText[r.accent] : "text-ink")}>
-              {r.count ? <CountText text={r.contract} active={step >= r.step} /> : r.contract}
+              {r.count ? <CountText text={r.contract} active={step >= r.step} duration={2000} /> : r.contract}
             </div>
           </Build>
         ))}
