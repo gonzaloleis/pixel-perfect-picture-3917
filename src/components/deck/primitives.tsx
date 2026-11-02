@@ -76,23 +76,27 @@ export function Build({
   );
 }
 
-const NUM = /\d[\d,]*(?:\.\d+)?/g;
+/** Spanish number tokens: "1.415.263", "6,5", "975". */
+const NUM = /\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d+(?:,\d+)?/g;
 
-function formatLike(sample: string, value: number) {
-  const decimals = sample.includes(".") ? (sample.split(".")[1] ?? "").length : 0;
-  const grouped = sample.includes(",");
-  return value.toLocaleString("en-US", {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-    useGrouping: grouped,
-  });
+/** Spanish format: dot for thousands, comma for decimals. Grouping only when the sample is grouped. */
+export function formatEs(value: number, decimals = 0, grouped = true) {
+  const fixed = Math.abs(value).toFixed(decimals);
+  const [int = "0", dec] = fixed.split(".");
+  const intPart = grouped ? int.replace(/\B(?=(\d{3})+(?!\d))/g, ".") : int;
+  return (value < 0 ? "-" : "") + intPart + (dec ? "," + dec : "");
 }
 
-/** Renders `text` exactly, counting every number in it up from 0 when it becomes active. */
+function formatLike(sample: string, value: number) {
+  const decimals = sample.includes(",") ? (sample.split(",")[1] ?? "").length : 0;
+  return formatEs(value, decimals, sample.includes("."));
+}
+
+/** Renders `text` exactly, counting every number in it up from 0 when it becomes active (soft ease-out). */
 export function CountText({
   text,
   active = true,
-  duration = 900,
+  duration = 1800,
   delay = 0,
 }: {
   text: string;
@@ -118,7 +122,7 @@ export function CountText({
     const t0 = performance.now() + delay * 1000;
     const tick = (t: number) => {
       const k = Math.min(Math.max((t - t0) / duration, 0), 1);
-      setP(1 - Math.pow(1 - k, 3));
+      setP(1 - Math.pow(1 - k, 4));
       if (k < 1) raf.current = requestAnimationFrame(tick);
     };
     raf.current = requestAnimationFrame(tick);
@@ -128,7 +132,7 @@ export function CountText({
   if (p >= 1) return <span className="tabular-nums">{text}</span>;
   return (
     <span className="tabular-nums">
-      {text.replace(NUM, (m) => formatLike(m, Number(m.replace(/,/g, "")) * p))}
+      {text.replace(NUM, (m) => formatLike(m, Number(m.replace(/\./g, "").replace(",", ".")) * p))}
     </span>
   );
 }
@@ -138,7 +142,7 @@ export function Pill({ accent, children, className }: { accent: Accent; children
 }
 
 export function SampleDataTag() {
-  return <div className="k-label pointer-events-none absolute right-12 bottom-9 text-ink-2">{SAMPLE_DATA_LABEL}</div>;
+  return <div className="k-label pointer-events-none absolute right-12 bottom-9 font-normal text-ink-2">{SAMPLE_DATA_LABEL}</div>;
 }
 
 /** Slide title: the hero of the slide, enters alone. */
@@ -199,7 +203,7 @@ export function Capture({ slot, width, className }: { slot: CaptureSlot; width?:
       className={cn("k-capture-empty flex flex-col items-center justify-center gap-4 px-10 text-center", className)}
       style={{ width: w, height: h }}
     >
-      <div className="k-label text-blue">MS PROJECT CAPTURE</div>
+      <div className="k-label text-blue">MS Project capture</div>
       <div className="k-small text-ink-2">{slot.description}</div>
     </div>
   );
