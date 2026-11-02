@@ -441,7 +441,6 @@ export function Slide7({ step }: SlideProps) {
   const tipY = y(tipV);
   const tipMonth = (months[Math.round(fi)] ?? "").toUpperCase();
   const drawing = !isStatic && chartOn && p > 0 && p < 1;
-  const paymentsDelay = 0.2 + DRAW_S + 0.1;
   // Revealed (in CSS) once the S-curve has finished drawing; payments line draws in the meantime.
   const revealStyle = (afterS: number) => ({
     opacity: p >= 1 ? 1 : 0,
