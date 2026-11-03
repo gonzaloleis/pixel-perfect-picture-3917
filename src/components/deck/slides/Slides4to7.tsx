@@ -613,7 +613,7 @@ export function Slide7({ step }: SlideProps) {
       {chartOn && (
         <div
           className="k-label pointer-events-none absolute rounded-[10px] bg-surface px-3 py-[6px] text-right whitespace-nowrap text-amber shadow-[var(--shadow-card)]"
-          style={{ right: 1920 - (preNextX - 14), top: preY - 28, fontSize: 18, lineHeight: 1.25, ...revealStyle(1.4) }}
+          style={{ right: 1920 - (preNextX - 14), top: preY - 12, fontSize: 18, lineHeight: 1.25, ...revealStyle(1.4) }}
         >
           <div>{preA}</div>
           <div>{preB}</div>
