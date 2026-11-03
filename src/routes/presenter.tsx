@@ -10,9 +10,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/presenter")({
   head: () => ({
     meta: [
-      { title: "Presenter view — CIPRI Project Plan" },
+      { title: "Presenter view, CIPRI Project Plan" },
       { name: "description", content: "Speaker notes, next slide and timer for the CIPRI keynote." },
-      { property: "og:title", content: "Presenter view — CIPRI Project Plan" },
+      { property: "og:title", content: "Presenter view, CIPRI Project Plan" },
       { property: "og:description", content: "Speaker notes, next slide and timer for the CIPRI keynote." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -38,7 +38,7 @@ export function Deck({ pos, onChange }: { pos: DeckPos; onChange: (p: DeckPos) =
   useEffect(() => {
     chanRef.current?.postMessage({ type: "state", pos } satisfies DeckMessage);
     const meta = slides[pos.slide - 1]!;
-    document.title = `${pos.slide}/${slides.length} — ${meta.name}, CIPRI Project Plan`;
+    document.title = `${pos.slide}/${slides.length}: ${meta.name}, CIPRI Project Plan`;
   }, [pos]);
 
   // Keyboard
