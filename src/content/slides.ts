@@ -108,9 +108,10 @@ export const s4 = {
   legend: { grey: "Christmas closure", amber: "Limited regional availability" },
   milestones: [
     { step: 1, date: "2026-11-16", title: "16 Nov 2026", lines: ["Kick-off and plan approved"], pill: "On time", accent: "mint" as Accent },
-    { step: 2, date: "2027-06-30", title: "30 Jun 2027", lines: ["MVP in shadow mode", "Madrid and Castilla-La Mancha"], pill: "6 days of slack", accent: "mint" as Accent },
-    { step: 3, date: "2028-02-29", title: "29 Feb 2028", lines: ["Full deployment", "All 5 regions"], pill: "4 days of slack", accent: "mint" as Accent },
-    { step: 4, date: "2028-05-31", title: "31 May 2028", lines: ["Drill passed, final acceptance"], pill: "No slack", accent: "amber" as Accent },
+    { step: 2, date: "2027-04-30", title: "30 Apr 2027", lines: ["Design and infrastructure", "Platforms in service"], pill: "3 days of slack", accent: "mint" as Accent },
+    { step: 3, date: "2027-06-30", title: "30 Jun 2027", lines: ["MVP in shadow mode", "Madrid and Castilla-La Mancha"], pill: "6 days of slack", accent: "mint" as Accent },
+    { step: 4, date: "2028-02-29", title: "29 Feb 2028", lines: ["Full deployment", "All 5 regions"], pill: "4 days of slack", accent: "mint" as Accent },
+    { step: 5, date: "2028-05-31", title: "31 May 2028", lines: ["Drill passed, final acceptance"], pill: "No slack", accent: "amber" as Accent },
   ],
   marker: { date: "2028-06-01", label: "Campaign starts 1 June 2028" },
 };
@@ -170,14 +171,16 @@ export const s7 = {
   /** Cumulative payments received, €k */
   payments: [
     { month: "Nov-26", value: 48.75, label: "M1 5\u00A0%" },
-    { month: "Jun-27", value: 390, label: "M2 35\u00A0%" },
-    { month: "Feb-28", value: 682.5, label: "M3 30\u00A0%" },
-    { month: "May-28", value: 975, label: "M4 30\u00A0%" },
+    { month: "Apr-27", value: 341.25, label: "M2 30\u00A0%" },
+    { month: "Jun-27", value: 487.5, label: "M3 15\u00A0%" },
+    { month: "Feb-28", value: 780, label: "M4 30\u00A0%" },
+    { month: "May-28", value: 975, label: "M5 20\u00A0%" },
   ],
   yMax: 1100,
   yTicks: [0, 250, 500, 750, 1000],
   lineLabels: { bcws: "BCWS", payments: "Payments" },
-  prefinancing: { month: "May-27", label: "Pre-financing peak: 520\u00A0k€ (June 2027)" },
+  /** Label sits in the shaded gap of `month`, right-aligned to the next payment step. */
+  prefinancing: { month: "Jan-28", label: "Pre-financing peak: 430\u00A0k€ (February 2028)" },
   capture: captures.cashFlow,
 };
 
@@ -186,7 +189,7 @@ export const s8 = {
   title: "On time. Below cost.",
   time: {
     label: "Time",
-    headline: "All 4 contractual dates met",
+    headline: "All 5 contractual dates met",
     detail: "Full deployment 4 days early; final acceptance on the deadline",
   },
   cost: {
@@ -200,7 +203,7 @@ export const s8 = {
     { label: "− Indirect", text: "72.900\u00A0€", delta: -72900, kind: "step" },
     { label: "Result", text: "−62.900\u00A0€", delta: -62900, kind: "result" },
   ] as const,
-  footer: "Accepted as a strategic project. Levers under review: SOC start date, indirect rate, white-march staffing.",
+  footer: "Accepted as a strategic investment. Savings come from efficiency, not from cutting the contracted scope: internal hours, contingency, supplier negotiation and a SOC start aligned with the MVP.",
 };
 
 /* ---------------- Slide 9 ---------------- */
@@ -209,9 +212,9 @@ export const s9 = {
   missing: {
     label: "Missing tasks",
     items: [
-      "No task for the MVP in shadow mode — built from 'pilot operation' tasks.",
-      "No task for the white march — reused 'assisted operation support'.",
-      "No task for the 112 adapters — reused 'integration with external systems' five times.",
+      "No task for the MVP in shadow mode: built from 'pilot operation' tasks.",
+      "No task for the white march: reused 'assisted operation support'.",
+      "No task for the 112 adapters: reused 'integration with external systems' five times.",
     ],
   },
   assumptions: {
@@ -244,11 +247,11 @@ export const slides: SlideMeta[] = [
   { id: 1, name: "Title", steps: 2, sampleData: true, glow: true, notes: "This is the baseline plan for CIPRI: from the official start on 16 November 2026 to final acceptance on 31 May 2028." },
   { id: 2, name: "What changed since the offer", steps: 3, sampleData: true, glow: false, notes: "The solution is the same we offered, but the contract changed: a lower price, an MVP in shadow mode by June 2027, full deployment by February 2028 and a white march before acceptance." },
   { id: 3, name: "WBS and tasks", steps: 3, sampleData: true, glow: false, notes: "We organised the plan in ten phases, from project management to the white march, with 142 tasks and six milestones." },
-  { id: 4, name: "Milestones and deadlines", steps: 4, sampleData: true, glow: false, notes: "Every contractual date is met. The tightest point is final acceptance, which has no slack, so the white march protects it." },
+  { id: 4, name: "Milestones and deadlines", steps: 5, sampleData: true, glow: false, notes: "Five contractual milestones, all met. Payments follow real progress: infrastructure in April 2027, the MVP in shadow mode in June, full deployment in February 2028 and final acceptance in May. Final acceptance has no slack, so the white march protects it." },
   { id: 5, name: "Resources", steps: 3, sampleData: true, glow: false, notes: "The plan needs 7.290 hours. We levelled the Applications Unit and accepted one small overallocation, within the overtime limit." },
   { id: 6, name: "Cost breakdown", steps: 3, sampleData: true, glow: false, notes: "Direct cost is 965.000 euros; with indirect costs, the cost before profit is about 1,04 million." },
-  { id: 7, name: "BAC and BCWS", steps: 3, sampleData: true, glow: false, notes: "The budget at completion is 1.037.900 euros. The S-curve shows planned value against payments: the peak of pre-financing is in May 2027." },
-  { id: 8, name: "Margin and contract compliance", steps: 3, sampleData: true, glow: false, notes: "We meet all dates, but at the signed price the project runs a small loss. Management accepted it as strategic, and we are reviewing three levers." },
+  { id: 7, name: "BAC and BCWS", steps: 3, sampleData: true, glow: false, notes: "The budget at completion is 1.037.900 euros. With five payments, the largest one arrives in April 2027, when most purchases are done. Pre-financing peaks at about 430.000 euros, just before full deployment." },
+  { id: 8, name: "Margin and contract compliance", steps: 3, sampleData: true, glow: false, notes: "We meet every date. At the signed price the project runs a small loss, which management accepts as a strategic investment. We reduce it through efficiency, without cutting the scope we signed." },
   { id: 9, name: "Problems with the catalogue", steps: 2, sampleData: true, glow: false, notes: "The catalogue had no tasks for the MVP, the white march or the adapters, so we adapted existing ones and recorded our assumptions." },
   { id: 10, name: "Next steps", steps: 3, sampleData: true, glow: true, notes: "Next step: the internal kick-off on 12 November, then the client kick-off on the 18th." },
 ];
