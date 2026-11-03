@@ -368,7 +368,8 @@ export function Slide6({ step }: SlideProps) {
     const a1 = a + span;
     a += span;
     // Leader anchor on the right half of the ring, so the leader never crosses the ring.
-    const anchor = clamp(clamp(a0 + span / 2, -72, 80), a0 + 6, a1 - 6);
+    const n0 = a0 > 180 ? a0 - 360 : a0;
+    const anchor = clamp(clamp(n0 + span / 2, -72, 80), n0 + 6, n0 + span - 6);
     const rad = (anchor * Math.PI) / 180;
     const ro = R + RING / 2 + 6;
     return { ...s, a0: a0 + 1.2, a1: a1 - 1.2, ax: CX + ro * Math.cos(rad), ay: CY + ro * Math.sin(rad) };
