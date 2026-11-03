@@ -104,7 +104,7 @@ export function Slide8({ step }: SlideProps) {
         })}
       </Build>
 
-      <Build at={3} step={step} className="k-small absolute top-[956px] left-0 w-full text-center text-ink-2">
+      <Build at={3} step={step} className="k-small absolute top-[940px] left-[160px] w-[1600px] text-center text-ink-2">
         {s8.footer}
       </Build>
     </>
