@@ -407,7 +407,7 @@ export function Slide6({ step }: SlideProps) {
       {segs.map((s, idx) => (
         <Build key={s.name + "l"} at={1} step={step} delay={0.9} i={idx} className="absolute flex flex-col gap-1 whitespace-nowrap" style={{ left: LABEL_X, top: s.ay - 34 }}>
           <span className="k-small font-medium text-ink">{s.name}</span>
-          <span className="k-label text-ink-2">{s.label}</span>
+          <span className="k-label text-ink-2 tabular-nums">{s.label}</span>
         </Build>
       ))}
 
@@ -549,7 +549,7 @@ export function Slide7({ step }: SlideProps) {
             {s7.yTicks.map((v) => (
               <g key={v}>
                 <line x1={PL} x2={PR} y1={y(v)} y2={y(v)} className="stroke-hair" strokeWidth={1} />
-                <text x={PL - 16} y={y(v) + 6} textAnchor="end" className="k-label fill-ink-2" style={{ fontSize: 18 }}>
+                <text x={PL - 16} y={y(v) + 6} textAnchor="end" className="k-label fill-ink-2 tabular-nums" style={{ fontSize: 18 }}>
                   {v === 0 ? "0\u00A0€" : `${formatEs(v)}\u00A0k€`}
                 </text>
               </g>
@@ -557,7 +557,7 @@ export function Slide7({ step }: SlideProps) {
             <line x1={PL} x2={PR} y1={PB} y2={PB} className="stroke-hair" strokeWidth={1} />
             {months.map((m, i) =>
               i % 2 === 0 ? (
-                <text key={m} x={xi(i)} y={PB + 40} textAnchor="middle" className="k-label fill-ink-2" style={{ fontSize: 18 }}>
+                <text key={m} x={xi(i)} y={PB + 40} textAnchor="middle" className="k-label fill-ink-2 tabular-nums" style={{ fontSize: 18 }}>
                   {m}
                 </text>
               ) : null,
