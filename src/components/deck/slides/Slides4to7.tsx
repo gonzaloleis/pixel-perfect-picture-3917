@@ -1,5 +1,5 @@
-import { useEffect, useId, useRef, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { motion, useReducedMotion, type MotionStyle } from "framer-motion";
 import { s4, s5, s6, s7 } from "@/content/slides";
 import { cn } from "@/lib/utils";
 import {
@@ -10,6 +10,7 @@ import {
   DrawPath,
   EASE,
   Pill,
+  formatEs,
   SPRING,
   StageCard,
   Title,
@@ -19,7 +20,20 @@ import {
 
 /* ---------------- shared ---------------- */
 
-function GrowBar({ active, fraction, className, delay = 0 }: { active: boolean; fraction: number; className?: string; delay?: number }) {
+function GrowBar({
+  active,
+  fraction,
+  className,
+  delay = 0,
+  duration,
+}: {
+  active: boolean;
+  fraction: number;
+  className?: string;
+  delay?: number;
+  /** Seconds; when set, grows with a soft ease-out instead of the spring. */
+  duration?: number;
+}) {
   const isStatic = useIsStatic();
   if (isStatic) return <div className={className} style={{ width: `${fraction * 100}%` }} />;
   return (
@@ -28,7 +42,7 @@ function GrowBar({ active, fraction, className, delay = 0 }: { active: boolean; 
       style={{ width: `${fraction * 100}%` }}
       initial={{ scaleX: 0 }}
       animate={{ scaleX: active ? 1 : 0 }}
-      transition={{ ...SPRING, delay }}
+      transition={duration ? { duration, ease: [0.16, 1, 0.3, 1], delay } : { ...SPRING, delay }}
     />
   );
 }
@@ -61,155 +75,216 @@ function useProgress(active: boolean, duration: number, delay: number) {
   return p;
 }
 
-/* ---------------- Slide 4: timeline with a travelling cursor ---------------- */
+/* ---------------- Slide 4: milestone cards over a month ruler ---------------- */
 
-const X0 = 180;
-const X1 = 1740;
-const AXIS_Y = 620;
-const CURSOR_S = 0.9;
 const t = (d: string) => new Date(d + "T00:00:00Z").getTime();
-const T0 = t(s4.start.date);
-const T1 = t(s4.end.date);
-const dx = (d: string) => X0 + ((t(d) - T0) / (T1 - T0)) * (X1 - X0);
+const RX0 = 160;
+const RX1 = 1760;
+const R_T0 = t(s4.ruler.from);
+const R_T1 = t(s4.ruler.to);
+const rx = (d: string) => RX0 + ((t(d) - R_T0) / (R_T1 - R_T0)) * (RX1 - RX0);
 
-const bandFill = { grey: "fill-ink/[0.05]", amber: "fill-amber/15", ink: "fill-blue/[0.07]" } as const;
+const CARD_TOP = 256;
+const CARD_H = 300;
+const CARD_W = 386;
+const CARD_GAP = 32;
+const CARD_LEFT = 140;
+const RULER_Y = 650;
+const LANE_TOP = [704, 764] as const;
+const LANE_H = 52;
+const BAND_TOP = 600;
+const BAND_BOTTOM = 826;
+const RULER_DRAW_S = 1.4;
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function rulerMonths() {
+  const out: { iso: string; m: number; y: number }[] = [];
+  const d = new Date(s4.ruler.from + "T00:00:00Z");
+  while (d.getTime() < R_T1) {
+    out.push({ iso: d.toISOString().slice(0, 10), m: d.getUTCMonth(), y: d.getUTCFullYear() });
+    d.setUTCMonth(d.getUTCMonth() + 1);
+  }
+  return out;
+}
+
+const bandClass = { grey: "bg-ink/[0.06]", amber: "bg-amber/15" } as const;
+const laneClass = ["bg-mesh-1", "bg-mesh-2"] as const;
+
+function RiseCard({
+  visible,
+  delay,
+  className,
+  style,
+  children,
+}: {
+  visible: boolean;
+  delay: number;
+  className?: string;
+  style?: CSSProperties;
+  children: ReactNode;
+}) {
+  const isStatic = useIsStatic();
+  if (isStatic)
+    return visible ? (
+      <div className={className} style={style}>
+        {children}
+      </div>
+    ) : null;
+  return (
+    <motion.div
+      className={className}
+      style={style as MotionStyle}
+      initial={{ opacity: 0, y: 28 }}
+      animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+      transition={{ ...SPRING, opacity: { duration: 0.4, ease: EASE, delay: visible ? delay : 0 }, delay: visible ? delay : 0 }}
+      aria-hidden={!visible}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 export function Slide4({ step }: SlideProps) {
   const isStatic = useIsStatic();
-  const progress = s4.axisProgress[Math.min(step, s4.axisProgress.length) - 1] ?? 1;
-  const markerX = dx(s4.marker.date);
-  const visibleMs = s4.milestones.filter((m) => step >= m.step);
-  const latest = visibleMs[visibleMs.length - 1];
-  const cursorX = latest ? dx(latest.date) : X0;
-  const landDelay = step === 1 ? AFTER_TITLE + 0.2 : CURSOR_S * 0.9;
+  const months = rulerMonths();
+  const markerX = rx(s4.marker.date);
+  const rulerDone = AFTER_TITLE + RULER_DRAW_S;
+
+  const ruler = (
+    <div className="absolute inset-0">
+      {s4.phases.map((ph) => {
+        const left = rx(ph.from);
+        const width = rx(ph.to) - left - 4;
+        return (
+          <div
+            key={ph.name}
+            className={cn("absolute flex items-center rounded-[14px] px-4 text-[18px] leading-[1.1] font-medium text-ink", laneClass[ph.lane])}
+            style={{ left: left + 2, top: LANE_TOP[ph.lane], width, height: LANE_H }}
+          >
+            {ph.name}
+          </div>
+        );
+      })}
+      {s4.bands.map((b) => (
+        <div
+          key={b.from}
+          className={cn("pointer-events-none absolute rounded-[8px]", bandClass[b.tone])}
+          style={{ left: rx(b.from), width: Math.max(rx(b.to) - rx(b.from), 4), top: BAND_TOP, height: BAND_BOTTOM - BAND_TOP }}
+        />
+      ))}
+      <div className="absolute h-px bg-ink/20" style={{ left: RX0, width: RX1 - RX0, top: RULER_Y }} />
+      {months.map((m, i) => (
+        <div key={m.iso}>
+          <div className="absolute w-px bg-ink/20" style={{ left: rx(m.iso), top: RULER_Y, height: i % 2 === 0 ? 10 : 6 }} />
+          {i % 2 === 0 && (
+            <div className="k-label absolute font-normal text-ink-2" style={{ left: rx(m.iso) + 6, top: RULER_Y + 14, fontSize: 18 }}>
+              {MONTHS[m.m]}
+            </div>
+          )}
+          {(i === 0 || m.m === 0) && (
+            <div className="k-label absolute text-ink" style={{ left: i === 0 ? 214 : rx(m.iso) + 6, top: RULER_Y - 36, fontSize: 18 }}>
+              {m.y}
+            </div>
+          )}
+        </div>
+      ))}
+      <div className="absolute w-[2px] rounded-full bg-amber" style={{ left: markerX - 1, top: BAND_TOP, height: BAND_BOTTOM - BAND_TOP }} />
+    </div>
+  );
 
   return (
     <>
       <Title>{s4.title}</Title>
-      <Build at={1} step={step} className="absolute inset-0">
-        <StageCard />
-      </Build>
-      <Build at={1} step={step} i={1} className="absolute inset-0">
-        <svg className="absolute inset-0" width={1920} height={1080} viewBox="0 0 1920 1080">
-          {s4.bands.map((b) => {
-            const visible = step >= b.step;
-            const rect = (
-              <rect x={dx(b.from)} y={420} width={Math.max(dx(b.to) - dx(b.from), 2)} height={380} rx={10} className={bandFill[b.tone]} />
-            );
-            if (isStatic) return visible ? <g key={b.from}>{rect}</g> : null;
-            return (
-              <motion.g key={b.from} initial={{ opacity: 0 }} animate={{ opacity: visible ? 1 : 0 }} transition={{ duration: 0.6, ease: EASE }}>
-                {rect}
-              </motion.g>
-            );
-          })}
-          <line x1={X0} x2={X1} y1={AXIS_Y} y2={AXIS_Y} className="stroke-hair" strokeWidth={3} strokeLinecap="round" />
-          {isStatic ? (
-            <line x1={X0} x2={X0 + (X1 - X0) * progress} y1={AXIS_Y} y2={AXIS_Y} className="stroke-ink" strokeWidth={3} strokeLinecap="round" />
-          ) : (
-            <motion.line
-              x1={X0}
-              y1={AXIS_Y}
-              y2={AXIS_Y}
-              className="stroke-ink"
-              strokeWidth={3}
-              strokeLinecap="round"
-              initial={{ x2: X0 }}
-              animate={{ x2: X0 + (X1 - X0) * progress }}
-              transition={{ duration: 1.1, ease: EASE }}
-            />
-          )}
-          {step >= s4.marker.step && <line x1={markerX} x2={markerX} y1={384} y2={800} className="stroke-amber" strokeWidth={3} strokeLinecap="round" />}
 
-          {/* Soft cursor dot travelling along the timeline */}
-          {!isStatic && (
-            <motion.g initial={{ x: X0 }} animate={{ x: cursorX }} transition={{ duration: CURSOR_S, ease: EASE }}>
-              <circle cx={0} cy={AXIS_Y} r={26} className="fill-blue/15" />
-              <circle cx={0} cy={AXIS_Y} r={12} className="fill-blue" />
-            </motion.g>
-          )}
-
-          {/* Milestone pins: dropped when the cursor lands, with a gentle pulse */}
-          {s4.milestones.map((m) => {
-            if (step < m.step) return null;
-            const x = dx(m.date);
-            if (isStatic) return <circle key={m.date} cx={x} cy={AXIS_Y} r={11} className="fill-surface stroke-ink" strokeWidth={3} />;
-            const isLatest = m === latest;
-            const d = isLatest ? landDelay : 0;
-            return (
-              <g key={m.date}>
-                {isLatest && (
-                  <motion.circle
-                    cx={x}
-                    cy={AXIS_Y}
-                    className="fill-blue/20"
-                    initial={{ r: 10, opacity: 0 }}
-                    animate={{ r: [10, 40], opacity: [0.9, 0] }}
-                    transition={{ duration: 0.9, ease: "easeOut", delay: d }}
-                  />
-                )}
-                <motion.circle
-                  cx={x}
-                  cy={AXIS_Y}
-                  r={11}
-                  className="fill-surface stroke-ink"
-                  strokeWidth={3}
-                  style={{ transformOrigin: `${x}px ${AXIS_Y}px` }}
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ ...SPRING, delay: d }}
-                />
-              </g>
-            );
-          })}
-
-        </svg>
-
-        <div className="k-label absolute text-ink-2" style={{ left: X0, top: AXIS_Y - 92 }}>
-          {s4.start.label}
-        </div>
-        <div className="k-label absolute text-ink-2" style={{ right: 1920 - X1, top: 816 }}>
-          {s4.end.label}
-        </div>
-      </Build>
-
-      {s4.bands.map((b) => (
-        <Build
-          key={b.from + "l"}
-          at={b.step}
-          step={step}
-          className={cn("k-label absolute whitespace-nowrap", b.tone === "amber" ? "text-amber" : b.tone === "ink" ? "text-blue" : "text-ink-2")}
-          style={{ left: dx(b.from), top: b.tone === "grey" ? 816 : 388 }}
+      {isStatic ? (
+        ruler
+      ) : (
+        <motion.div
+          className="absolute inset-0"
+          initial={{ clipPath: "inset(0 100% 0 0)" }}
+          animate={{ clipPath: "inset(0 0% 0 0)" }}
+          transition={{ duration: RULER_DRAW_S, ease: EASE, delay: AFTER_TITLE }}
         >
-          {b.label}
-        </Build>
-      ))}
+          {ruler}
+        </motion.div>
+      )}
 
-      <Build at={s4.marker.step} step={step} className="k-label absolute whitespace-nowrap text-amber" style={{ right: 1920 - markerX, top: 346 }}>
+      <Build at={1} step={step} delay={RULER_DRAW_S} className="absolute flex items-center gap-10" style={{ left: RX0, top: 856 }}>
+        <span className="flex items-center gap-3">
+          <span className="h-[18px] w-[34px] rounded-[5px] bg-ink/[0.08]" />
+          <span className="k-label font-normal text-ink-2">{s4.legend.grey}</span>
+        </span>
+        <span className="flex items-center gap-3">
+          <span className="h-[18px] w-[34px] rounded-[5px] bg-amber/25" />
+          <span className="k-label font-normal text-ink-2">{s4.legend.amber}</span>
+        </span>
+      </Build>
+      <Build at={1} step={step} delay={RULER_DRAW_S} className="k-label absolute whitespace-nowrap text-amber" style={{ right: 1920 - RX1, top: 856 }}>
         {s4.marker.label}
       </Build>
 
-      {s4.milestones.map((m) => {
-        const x = dx(m.date);
-        const pos = m.align === "start" ? { left: x - 4 } : { right: 1920 - x - 4 };
-        const textAlign = m.align === "start" ? "text-left" : "text-right";
-        const d = m === latest && !isStatic ? landDelay - (step === 1 ? AFTER_TITLE : 0) + 0.1 : 0;
+      <svg className="pointer-events-none absolute inset-0" width={1920} height={1080} viewBox="0 0 1920 1080">
+        {s4.milestones.map((m, idx) => {
+          const visible = step >= m.step;
+          const left = CARD_LEFT + idx * (CARD_W + CARD_GAP);
+          const dateX = rx(m.date);
+          const ax = Math.min(Math.max(dateX, left + 48), left + CARD_W - 48);
+          const y0 = CARD_TOP + CARD_H;
+          const d = ax === dateX ? `M ${ax} ${y0} V ${RULER_Y}` : `M ${ax} ${y0} V ${y0 + 22} H ${dateX} V ${RULER_Y}`;
+          const delay = (m.step === 1 ? rulerDone : 0) + 0.25;
+          return (
+            <g key={m.date}>
+              <DrawPath d={d} active={visible} className="stroke-ink/30 [stroke-width:1.5px]" duration={0.6} delay={delay} />
+              {visible &&
+                (isStatic ? (
+                  <circle cx={dateX} cy={RULER_Y} r={7} className="fill-ink" />
+                ) : (
+                  <motion.circle
+                    cx={dateX}
+                    cy={RULER_Y}
+                    r={7}
+                    className="fill-ink"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, delay: delay + 0.5 }}
+                  />
+                ))}
+            </g>
+          );
+        })}
+      </svg>
+
+      {s4.milestones.map((m, idx) => {
+        const visible = step >= m.step;
+        const delay = m.step === 1 ? rulerDone : 0;
+        const last = idx === s4.milestones.length - 1;
         return (
-          <div key={m.date}>
-            <Build at={m.step} step={step} delay={d + 0.08} className="absolute" style={{ ...pos, top: AXIS_Y + 26 }}>
-              <Pill accent={m.accent}>{m.slack}</Pill>
-            </Build>
-            <Build
-              at={m.step}
-              step={step}
-              delay={d}
-              className={cn("absolute w-[460px]", textAlign)}
-              style={m.side === "above" ? { ...pos, bottom: 1080 - (AXIS_Y - 34) } : { ...pos, top: AXIS_Y + 86 }}
-            >
-              <div className="k-label text-ink-2">{m.head}</div>
-              <div className="k-small mt-2 font-medium text-ink">{m.text}</div>
-            </Build>
-          </div>
+          <RiseCard
+            key={m.date}
+            visible={visible}
+            delay={delay}
+            className="k-card absolute flex flex-col p-9"
+            style={{ left: CARD_LEFT + idx * (CARD_W + CARD_GAP), top: CARD_TOP, width: CARD_W, height: CARD_H }}
+          >
+            <div className="text-[46px] leading-none font-semibold tracking-[-0.03em] text-ink tabular-nums">{m.title}</div>
+            <div className="mt-5 flex flex-col gap-1">
+              {m.lines.map((l, li) => (
+                <div key={l} className={cn("k-small", li === 0 ? "font-medium text-ink" : "text-ink-2")}>
+                  {l}
+                </div>
+              ))}
+            </div>
+            <div className="mt-auto">
+              {last ? (
+                <Build at={m.step} step={step} delay={0.7} as="span" className="inline-block">
+                  <Pill accent={m.accent}>{m.pill}</Pill>
+                </Build>
+              ) : (
+                <Pill accent={m.accent}>{m.pill}</Pill>
+              )}
+            </div>
+          </RiseCard>
         );
       })}
     </>
@@ -219,7 +294,6 @@ export function Slide4({ step }: SlideProps) {
 /* ---------------- Slide 5: resources ---------------- */
 
 export function Slide5({ step }: SlideProps) {
-  const isStatic = useIsStatic();
   const max = Math.max(...s5.units.map((u) => u.hours));
   return (
     <>
@@ -255,18 +329,10 @@ export function Slide5({ step }: SlideProps) {
             at={3}
             step={step}
             delay={idx * 0.35}
-            className={cn("relative flex gap-5 overflow-hidden rounded-[20px] px-8 py-6", c.accent === "mint" ? "bg-mint/10" : "bg-amber/10")}
+            className={cn("flex gap-5 rounded-[20px] px-8 py-6", c.accent === "mint" ? "bg-mint/10" : "bg-amber/10")}
           >
             <span className={cn("mt-[12px] h-[10px] w-[10px] shrink-0 rounded-full", c.accent === "mint" ? "bg-mint" : "bg-amber")} />
             <p className="k-small text-ink">{c.text}</p>
-            {c.accent === "amber" && !isStatic && step >= 3 && (
-              <motion.span
-                className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-amber/30 to-transparent"
-                initial={{ x: "-110%" }}
-                animate={{ x: "220%" }}
-                transition={{ duration: 1.1, ease: EASE, delay: 0.55 }}
-              />
-            )}
           </Build>
         ))}
       </div>
@@ -276,9 +342,11 @@ export function Slide5({ step }: SlideProps) {
 
 /* ---------------- Slide 6: cost breakdown ---------------- */
 
-const CX = 620;
+const CX = 430;
 const CY = 610;
 const R = 190;
+const RING = 44;
+const LABEL_X = CX + R + 150;
 
 function arc(a0: number, a1: number, r = R) {
   const rad = (a: number) => (a * Math.PI) / 180;
@@ -289,14 +357,21 @@ function arc(a0: number, a1: number, r = R) {
   return `M ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1}`;
 }
 
+const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), hi);
+
 export function Slide6({ step }: SlideProps) {
   const sum = s6.segments.reduce((a, s) => a + s.value, 0);
   let a = s6.donutStartDeg;
   const segs = s6.segments.map((s) => {
     const span = (s.value / sum) * 360;
-    const seg = { ...s, a0: a + 1.2, a1: a + span - 1.2, mid: a + span / 2 };
+    const a0 = a;
+    const a1 = a + span;
     a += span;
-    return seg;
+    // Leader anchor on the right half of the ring, so the leader never crosses the ring.
+    const anchor = clamp(clamp(a0 + span / 2, -72, 80), a0 + 6, a1 - 6);
+    const rad = (anchor * Math.PI) / 180;
+    const ro = R + RING / 2 + 6;
+    return { ...s, a0: a0 + 1.2, a1: a1 - 1.2, ax: CX + ro * Math.cos(rad), ay: CY + ro * Math.sin(rad) };
   });
   const total = s6.stack.direct.value + s6.stack.indirect.value;
 
@@ -308,10 +383,16 @@ export function Slide6({ step }: SlideProps) {
       </Build>
       <Build at={1} step={step} i={1} className="absolute inset-0">
         <svg className="absolute inset-0" width={1920} height={1080} viewBox="0 0 1920 1080">
-          <circle cx={CX} cy={CY} r={R} className="fill-none stroke-inset" strokeWidth={44} />
+          <circle cx={CX} cy={CY} r={R} className="fill-none stroke-inset" strokeWidth={RING} />
           {segs.map((s, idx) => (
             <g key={s.name} style={{ opacity: s.tone }}>
               <DrawPath d={arc(s.a0, s.a1)} active={step >= 1} className="stroke-blue [stroke-width:44px] [stroke-linecap:butt]" duration={0.8} delay={AFTER_TITLE + idx * 0.25} />
+            </g>
+          ))}
+          {segs.map((s, idx) => (
+            <g key={s.name + "leader"}>
+              <DrawPath d={`M ${s.ax} ${s.ay} H ${LABEL_X - 18}`} active={step >= 1} className="stroke-ink/30 [stroke-width:1.5px]" duration={0.5} delay={AFTER_TITLE + 0.9 + idx * 0.12} />
+              {step >= 1 && <circle cx={s.ax} cy={s.ay} r={4} className="fill-ink/50" />}
             </g>
           ))}
         </svg>
@@ -322,29 +403,16 @@ export function Slide6({ step }: SlideProps) {
         </span>
         <span className="k-small text-ink-2">{s6.centre.caption}</span>
       </Build>
-      {segs.map((s, idx) => {
-        const rad = (s.mid * Math.PI) / 180;
-        const lx = CX + (R + 62) * Math.cos(rad);
-        const ly = CY + (R + 62) * Math.sin(rad);
-        const right = Math.cos(rad) >= 0;
-        return (
-          <Build
-            key={s.name + "l"}
-            at={1}
-            step={step}
-            i={idx + 4}
-            className={cn("absolute flex flex-col gap-1 whitespace-nowrap", right ? "items-start" : "items-end")}
-            style={right ? { left: lx, top: ly - 32 } : { right: 1920 - lx, top: ly - 32 }}
-          >
-            <span className="k-small font-medium text-ink">{s.name}</span>
-            <span className="k-label text-ink-2">{s.label}</span>
-          </Build>
-        );
-      })}
+      {segs.map((s, idx) => (
+        <Build key={s.name + "l"} at={1} step={step} delay={0.9} i={idx} className="absolute flex flex-col gap-1 whitespace-nowrap" style={{ left: LABEL_X, top: s.ay - 34 }}>
+          <span className="k-small font-medium text-ink">{s.name}</span>
+          <span className="k-label text-ink-2">{s.label}</span>
+        </Build>
+      ))}
 
       <Build at={2} step={step} className="absolute top-[290px] left-[1120px] w-[650px]">
         <div className="flex h-[30px] w-full gap-[4px]">
-          <GrowBar active={step >= 2} fraction={s6.stack.direct.value / total} className="h-full rounded-l-full bg-blue" />
+          <GrowBar active={step >= 2} fraction={s6.stack.direct.value / total} duration={1.6} className="h-full rounded-l-full bg-blue" />
           <div className="h-full flex-1 rounded-r-full bg-blue/30" />
         </div>
         <div className="mt-5 flex justify-between gap-6">
@@ -428,7 +496,8 @@ export function Slide7({ step }: SlideProps) {
   const preIdx = months.indexOf(s7.prefinancing.month);
   const prePaid = [...pre].reverse().find((pm) => months.indexOf(pm.month) <= preIdx)?.value ?? 0;
   const preY = (y(s7.bcws[preIdx]?.[1] ?? 0) + y(prePaid)) / 2;
-  const [preA, preB] = s7.prefinancing.label.split(" · ");
+  const [preA = "", preB = ""] = s7.prefinancing.label.split(/(?<=:) /);
+  const preNextX = xm(s7.payments.find((pm) => months.indexOf(pm.month) > preIdx)?.month ?? s7.prefinancing.month);
 
   // Floating label follows the drawing tip
   const fi = p * (n - 1);
@@ -439,7 +508,7 @@ export function Slide7({ step }: SlideProps) {
   const tipV = v0 + (v1 - v0) * frac;
   const tipX = PL + p * (PR - PL);
   const tipY = y(tipV);
-  const tipMonth = (months[Math.round(fi)] ?? "").toUpperCase();
+  const tipMonth = months[Math.round(fi)] ?? "";
   const drawing = !isStatic && chartOn && p > 0 && p < 1;
   // Revealed (in CSS) once the S-curve has finished drawing; payments line draws in the meantime.
   const revealStyle = (afterS: number) => ({
@@ -479,15 +548,15 @@ export function Slide7({ step }: SlideProps) {
             {s7.yTicks.map((v) => (
               <g key={v}>
                 <line x1={PL} x2={PR} y1={y(v)} y2={y(v)} className="stroke-hair" strokeWidth={1} />
-                <text x={150} y={y(v) + 6} className="k-label fill-ink-2 text-[16px]">
-                  €{v}K
+                <text x={PL - 16} y={y(v) + 6} textAnchor="end" className="k-label fill-ink-2" style={{ fontSize: 18 }}>
+                  {v === 0 ? "0\u00A0€" : `${formatEs(v)}\u00A0k€`}
                 </text>
               </g>
             ))}
             <line x1={PL} x2={PR} y1={PB} y2={PB} className="stroke-hair" strokeWidth={1} />
             {months.map((m, i) =>
               i % 2 === 0 ? (
-                <text key={m} x={xi(i)} y={PB + 40} textAnchor="middle" className="k-label fill-ink-2 text-[16px]">
+                <text key={m} x={xi(i)} y={PB + 40} textAnchor="middle" className="k-label fill-ink-2" style={{ fontSize: 18 }}>
                   {m}
                 </text>
               ) : null,
@@ -501,47 +570,62 @@ export function Slide7({ step }: SlideProps) {
         <DrawPath d={pay} active={chartOn && p >= 1} className="stroke-mint [stroke-width:3px]" duration={1.2} />
         {chartOn && (
           <g style={revealStyle(1.1)}>
-            {s7.payments.map((pm, idx) => {
-              const x = xm(pm.month);
-              const last = idx === s7.payments.length - 1;
-              return (
-                <text
-                  key={pm.label}
-                  x={last ? x - 14 : x + 14}
-                  y={last ? y(pm.value) + 34 : y(pm.value) - 14}
-                  textAnchor={last ? "end" : "start"}
-                  className="k-label fill-mint text-[16px]"
-                >
-                  {pm.label}
-                </text>
-              );
-            })}
-            <text x={PR + 16} y={y(pre[pre.length - 1]?.value ?? 0) + 24} className="k-label fill-mint text-[16px]">
+            <text x={PR + 16} y={y(pre[pre.length - 1]?.value ?? 0) + 24} className="k-label fill-mint" style={{ fontSize: 18 }}>
               {s7.lineLabels.payments}
-            </text>
-            <text x={preX - 200} y={preY - 4} className="k-label fill-amber text-[16px] normal-case">
-              {preA} ·
-            </text>
-            <text x={preX - 200} y={preY + 24} className="k-label fill-amber text-[16px] normal-case">
-              {preB}
             </text>
           </g>
         )}
         {chartOn && p >= 1 && (
-          <text x={PR + 16} y={y(s7.bcws[n - 1]?.[1] ?? 0) - 10} className="k-label fill-ink text-[16px]">
+          <text x={PR + 16} y={y(s7.bcws[n - 1]?.[1] ?? 0) - 10} className="k-label fill-ink" style={{ fontSize: 18 }}>
             {s7.lineLabels.bcws}
           </text>
         )}
         {drawing && <circle cx={tipX} cy={tipY} r={7} className="fill-blue" />}
       </svg>
 
-      {drawing && (
+      {/* Payment labels on small white pills, on the free side of each step */}
+      {chartOn &&
+        s7.payments.map((pm, idx) => {
+          const x = xm(pm.month);
+          const yy = y(pm.value);
+          const last = idx === s7.payments.length - 1;
+          let pos: CSSProperties;
+          if (last) {
+            pos = { right: 1920 - (x - 14), top: yy + 30 };
+          } else if (y(0) - yy >= 60) {
+            pos = { left: x + 14, top: yy + 14 };
+          } else {
+            const from = months.indexOf(pm.month);
+            const j = s7.bcws.findIndex(([, v], k) => k > from && y(v) <= yy - 70);
+            pos = { left: xi(Math.max(j, from + 1)) + 8, top: yy - 48 };
+          }
+          return (
+            <div
+              key={pm.label}
+              className="k-label pointer-events-none absolute rounded-[10px] bg-surface px-3 py-[6px] whitespace-nowrap text-mint shadow-[var(--shadow-card)]"
+              style={{ ...pos, fontSize: 18, ...revealStyle(1.1) }}
+            >
+              {pm.label}
+            </div>
+          );
+        })}
+      {chartOn && (
         <div
-          className="k-card k-pill k-label pointer-events-none absolute text-ink"
-          style={{ left: tipX, top: tipY - 64, transform: "translateX(-50%)" }}
+          className="k-label pointer-events-none absolute rounded-[10px] bg-surface px-3 py-[6px] text-right whitespace-nowrap text-amber shadow-[var(--shadow-card)]"
+          style={{ right: 1920 - (preNextX - 14), top: preY - 28, fontSize: 18, lineHeight: 1.25, ...revealStyle(1.4) }}
         >
+          <div>{preA}</div>
+          <div>{preB}</div>
+        </div>
+      )}
+
+      {drawing && (
+        <div className="k-card k-pill k-label pointer-events-none absolute text-ink" style={{ left: tipX, top: tipY - 64, transform: "translateX(-50%)" }}>
           <span className="text-blue">{tipMonth}</span>
-          <span>€{Math.round(tipV)}K</span>
+          <span>
+            {formatEs(Math.round(tipV))}
+            {"\u00A0"}k€
+          </span>
         </div>
       )}
 
