@@ -45,50 +45,66 @@ export function Slide8({ step }: SlideProps) {
   });
   const min = Math.min(0, ...bars.map((b) => b.lo));
   const max = Math.max(...bars.map((b) => b.hi));
-  const W = 420;
-  const sx = (v: number) => ((v - min) / (max - min)) * W;
+  // Plot area inside the full-width card; room on both sides for the amounts.
+  const W = 1180;
+  const PAD_L = 190;
+  const PAD_R = 200;
+  const sx = (v: number) => PAD_L + ((v - min) / (max - min)) * (W - PAD_L - PAD_R);
   const second = AFTER_TITLE + 0.45;
 
   return (
     <>
       <Title center>{s8.title}</Title>
-      <div className="absolute top-[260px] left-[160px] grid w-[1600px] grid-cols-2 gap-10">
-        <FlipCard delay={AFTER_TITLE} className="k-card flex h-[330px] flex-col p-12">
+      <div className="absolute top-[256px] left-[160px] grid w-[1600px] grid-cols-2 gap-10">
+        <FlipCard delay={AFTER_TITLE} className="k-card flex h-[320px] flex-col p-12">
           <div>
             <Pill accent="mint">{s8.time.label}</Pill>
           </div>
           <div className="k-lead mt-auto text-ink">{s8.time.headline}</div>
           <div className="k-small mt-4 text-ink-2">{s8.time.detail}</div>
         </FlipCard>
-        <FlipCard delay={second} className="k-card flex h-[330px] flex-col p-12">
+        <FlipCard delay={second} className="k-card flex h-[320px] flex-col p-12">
           <div>
             <Pill accent="amber">{s8.cost.label}</Pill>
           </div>
           <div className="k-lead mt-auto text-ink">{s8.cost.headline}</div>
           <div className="k-body mt-4 font-medium text-amber">
-            <CountText text={s8.cost.detail} active={step >= 1} delay={second + 0.3} duration={1200} />
+            <CountText text={s8.cost.detail} active={step >= 1} delay={second + 0.3} />
           </div>
         </FlipCard>
       </div>
 
-      <Build at={2} step={step} className="k-card absolute top-[630px] left-[960px] w-[800px] px-10 py-5">
+      <Build at={2} step={step} className="k-card absolute top-[612px] left-[160px] w-[1600px] px-12 pt-4 pb-5">
+        <div className="relative flex h-[34px]">
+          <div className="w-[300px] shrink-0" />
+          <div className="relative" style={{ width: W }}>
+            <span className="k-label absolute top-[6px] -translate-x-1/2 text-ink-2" style={{ left: sx(0) }}>
+              0{"\u00A0"}€
+            </span>
+          </div>
+        </div>
         {bars.map((b, idx) => {
-          const tone = b.kind === "result" ? "bg-amber" : b.kind === "total" ? "bg-blue" : "bg-ink-2/40";
+          const result = b.kind === "result";
+          const tone = result ? "bg-amber" : b.kind === "total" ? "bg-blue" : "bg-ink-2/40";
           return (
-            <Build key={b.label} at={2} step={step} i={idx} className="flex h-[52px] items-center border-b border-hair last:border-b-0">
-              <div className={cn("k-small w-[300px] shrink-0 text-[24px]", b.kind === "result" ? "font-medium text-amber" : "text-ink")}>
-                <span className={b.kind === "result" ? "" : "text-ink-2"}>{b.label}</span> {b.text}
-              </div>
-              <div className="relative h-[14px]" style={{ width: W }}>
-                <div className="absolute top-[-14px] bottom-[-14px] w-px bg-hair" style={{ left: sx(0) }} />
-                <div className={cn("absolute h-full rounded-full", tone)} style={{ left: sx(b.lo), width: Math.max(sx(b.hi) - sx(b.lo), 4) }} />
+            <Build key={b.label} at={2} step={step} i={idx} className="flex h-[58px] items-center">
+              <div className={cn("k-small w-[300px] shrink-0", result ? "font-medium text-amber" : "text-ink-2")}>{b.label}</div>
+              <div className="relative h-[26px]" style={{ width: W }}>
+                <div className="absolute top-[-16px] bottom-[-16px] w-[2px] bg-ink/25" style={{ left: sx(0) - 1 }} />
+                <div className={cn("absolute h-full rounded-[8px]", tone)} style={{ left: sx(b.lo), width: Math.max(sx(b.hi) - sx(b.lo), 4) }} />
+                <span
+                  className={cn("k-small absolute top-1/2 -translate-y-1/2 whitespace-nowrap tabular-nums", result ? "font-medium text-amber" : "text-ink")}
+                  style={result ? { right: W - sx(b.lo) + 14 } : { left: sx(b.hi) + 14 }}
+                >
+                  {b.text}
+                </span>
               </div>
             </Build>
           );
         })}
       </Build>
 
-      <Build at={3} step={step} className="k-small absolute top-[932px] left-0 w-full text-center text-ink-2">
+      <Build at={3} step={step} className="k-small absolute top-[956px] left-0 w-full text-center text-ink-2">
         {s8.footer}
       </Build>
     </>
@@ -100,7 +116,7 @@ export function Slide8({ step }: SlideProps) {
 function CardColumn({ label, items, at, step }: { label: string; items: string[]; at: number; step: number }) {
   return (
     <div className="flex flex-col gap-4">
-      <Build at={at} step={step} className="k-label mb-1 text-ink-2">
+      <Build at={at} step={step} className="mb-1 text-[24px] leading-tight font-semibold text-ink-2">
         {label}
       </Build>
       {items.map((it, idx) => (
@@ -140,7 +156,7 @@ export function Slide10({ step }: SlideProps) {
       <div className="absolute top-[470px] left-[160px] grid w-[1600px] grid-cols-3 gap-8">
         {s10.cards.map((c, idx) => (
           <Build key={c.date} at={2} step={step} i={idx} className="k-card flex h-[270px] flex-col p-10">
-            <div className="k-label text-blue">{c.date}</div>
+            <div className="k-small font-medium text-blue">{c.date}</div>
             <div className="k-lead mt-auto text-ink">{c.name}</div>
             <div className="k-small mt-3 text-ink-2">{c.text}</div>
           </Build>
@@ -161,7 +177,7 @@ export function Slide10({ step }: SlideProps) {
       )}
       <Build at={3} step={step} delay={0.4} className="absolute inset-0 flex flex-col items-center justify-center text-center">
         <p className="k-title text-[84px] text-ink">{s10.closing.text}</p>
-        <p className="k-label mt-10 text-ink-2">{s10.closing.mark}</p>
+        <p className="k-small mt-10 font-medium text-ink-2">{s10.closing.mark}</p>
       </Build>
     </>
   );
