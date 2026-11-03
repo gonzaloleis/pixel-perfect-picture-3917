@@ -86,8 +86,8 @@ const rx = (d: string) => RX0 + ((t(d) - R_T0) / (R_T1 - R_T0)) * (RX1 - RX0);
 
 const CARD_TOP = 256;
 const CARD_H = 300;
-const CARD_W = 386;
-const CARD_GAP = 32;
+const CARD_GAP = 24;
+const CARD_W = Math.floor((RX1 + 20 - 140 - CARD_GAP * (s4.milestones.length - 1)) / s4.milestones.length);
 const CARD_LEFT = 140;
 const RULER_Y = 650;
 const LANE_TOP = [704, 764] as const;
@@ -229,7 +229,7 @@ export function Slide4({ step }: SlideProps) {
           const visible = step >= m.step;
           const left = CARD_LEFT + idx * (CARD_W + CARD_GAP);
           const dateX = rx(m.date);
-          const ax = Math.min(Math.max(dateX, left + 48), left + CARD_W - 48);
+          const ax = Math.min(Math.max(dateX, left + 40), left + CARD_W - 40);
           const y0 = CARD_TOP + CARD_H;
           const d = ax === dateX ? `M ${ax} ${y0} V ${RULER_Y}` : `M ${ax} ${y0} V ${y0 + 22} H ${dateX} V ${RULER_Y}`;
           const delay = (m.step === 1 ? rulerDone : 0) + 0.25;
@@ -264,10 +264,10 @@ export function Slide4({ step }: SlideProps) {
             key={m.date}
             visible={visible}
             delay={delay}
-            className="k-card absolute flex flex-col p-9"
+            className="k-card absolute flex flex-col p-7"
             style={{ left: CARD_LEFT + idx * (CARD_W + CARD_GAP), top: CARD_TOP, width: CARD_W, height: CARD_H }}
           >
-            <div className="text-[46px] leading-none font-semibold tracking-[-0.03em] text-ink tabular-nums">{m.title}</div>
+            <div className="text-[38px] leading-none whitespace-nowrap font-semibold tracking-[-0.03em] text-ink tabular-nums">{m.title}</div>
             <div className="mt-5 flex flex-col gap-1">
               {m.lines.map((l, li) => (
                 <div key={l} className={cn("k-small", li === 0 ? "font-medium text-ink" : "text-ink-2")}>
@@ -613,7 +613,7 @@ export function Slide7({ step }: SlideProps) {
       {chartOn && (
         <div
           className="k-label pointer-events-none absolute rounded-[10px] bg-surface px-3 py-[6px] text-right whitespace-nowrap text-amber shadow-[var(--shadow-card)]"
-          style={{ right: 1920 - (preNextX - 14), top: preY - 28, fontSize: 18, lineHeight: 1.25, ...revealStyle(1.4) }}
+          style={{ right: 1920 - (preNextX - 14), top: preY - 12, fontSize: 18, lineHeight: 1.25, ...revealStyle(1.4) }}
         >
           <div>{preA}</div>
           <div>{preB}</div>
@@ -630,8 +630,8 @@ export function Slide7({ step }: SlideProps) {
         </div>
       )}
 
-      <Build at={3} step={step} className="absolute top-[40px] right-[140px]">
-        <Capture slot={s7.capture} width={480} />
+      <Build at={3} step={step} className="absolute top-[272px] right-[140px]">
+        <Capture slot={s7.capture} width={340} />
       </Build>
     </>
   );

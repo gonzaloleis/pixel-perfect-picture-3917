@@ -6,9 +6,9 @@ import { SlideFrame } from "@/components/deck/registry";
 export const Route = createFileRoute("/print")({
   head: () => ({
     meta: [
-      { title: "Print — CIPRI Project Plan" },
+      { title: "Print, CIPRI Project Plan" },
       { name: "description", content: "All ten CIPRI keynote slides, fully built, one per landscape page." },
-      { property: "og:title", content: "Print — CIPRI Project Plan" },
+      { property: "og:title", content: "Print, CIPRI Project Plan" },
       { property: "og:description", content: "All ten CIPRI keynote slides, fully built, one per landscape page." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

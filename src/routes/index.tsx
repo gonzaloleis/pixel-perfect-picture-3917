@@ -13,9 +13,9 @@ export const Route = createFileRoute("/")({
   }),
   head: () => ({
     meta: [
-      { title: "CIPRI Project Plan — Keynote" },
+      { title: "CIPRI Project Plan: keynote" },
       { name: "description", content: "Baseline project plan for CIPRI, from signed contract to an operational wildfire coordination centre." },
-      { property: "og:title", content: "CIPRI Project Plan — Keynote" },
+      { property: "og:title", content: "CIPRI Project Plan: keynote" },
       { property: "og:description", content: "From signed contract to an operational centre: the CIPRI baseline plan in ten slides." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
