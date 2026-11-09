@@ -323,10 +323,10 @@ export function Slide5({ step }: SlideProps) {
           </Build>
         ))}
       </div>
-      <Build at={2} step={step} className="absolute top-[272px] left-[1030px]">
-        <Capture slot={s5.capture} width={740} />
+      <Build at={2} step={step} className="absolute top-[752px] left-[150px]">
+        <Capture slot={s5.capture} width={1620} />
       </Build>
-      <div className="absolute top-[792px] left-[150px] grid w-[1620px] grid-cols-2 gap-8">
+      <div className="absolute top-[284px] left-[1030px] flex w-[740px] flex-col gap-6">
         {s5.cards.map((c, idx) => (
           <Build
             key={c.text}
@@ -436,7 +436,7 @@ export function Slide6({ step }: SlideProps) {
           </span>
         </div>
       </Build>
-      <Build at={3} step={step} className="absolute top-[598px] left-[1120px]">
+      <Build at={3} step={step} className="absolute top-[548px] left-[1120px]">
         <Capture slot={s6.capture} width={650} />
       </Build>
     </>
@@ -446,7 +446,7 @@ export function Slide6({ step }: SlideProps) {
 /* ---------------- Slide 7: S-curve drawn live ---------------- */
 
 const PL = 240;
-const PR = 1640;
+const PR = 1180;
 const PT = 530;
 const PB = 900;
 const DRAW_S = 2;
@@ -652,8 +652,8 @@ export function Slide7({ step }: SlideProps) {
         </div>
       )}
 
-      <Build at={3} step={step} className="absolute top-[272px] right-[140px]">
-        <Capture slot={s7.capture} width={340} />
+      <Build at={3} step={step} className="absolute top-[528px] left-[1310px]">
+        <Capture slot={s7.capture} width={460} />
       </Build>
     </>
   );

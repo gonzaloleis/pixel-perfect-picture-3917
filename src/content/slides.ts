@@ -22,11 +22,11 @@ export const captures = {
   resourceGraph: {
     file: "resource-graph.png",
     description: "Resource usage, client staff overallocations",
-    width: 760,
-    height: 480,
+    width: 1620,
+    height: 240,
   },
-  costOverview: { file: "cost-overview.png", description: "Cost overview report", width: 760, height: 420 },
-  cashFlow: { file: "cash-flow.png", description: "Cash flow report, baseline cost", width: 520, height: 320 },
+  costOverview: { file: "cost-overview.png", description: "Cost overview report", width: 650, height: 436 },
+  cashFlow: { file: "cash-flow.png", description: "Cash flow report, baseline cost", width: 460, height: 352 },
 } satisfies Record<string, CaptureSlot>;
 
 export type Accent = "ink" | "blue" | "amber" | "mint";
