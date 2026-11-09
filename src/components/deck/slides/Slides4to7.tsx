@@ -460,6 +460,11 @@ function smooth(pts: [number, number][]) {
     const p3 = pts[i + 2] ?? p2;
     const c1: [number, number] = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
     const c2: [number, number] = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    // Keep each segment monotone (cumulative curve): no overshoot past its end points.
+    const lo = Math.min(p1[1], p2[1]);
+    const hi = Math.max(p1[1], p2[1]);
+    c1[1] = Math.min(Math.max(c1[1], lo), hi);
+    c2[1] = Math.min(Math.max(c2[1], lo), hi);
     d += ` C ${c1[0]} ${c1[1]} ${c2[0]} ${c2[1]} ${p2[0]} ${p2[1]}`;
   }
   return d;
@@ -471,7 +476,8 @@ export function Slide7({ step }: SlideProps) {
   const clipPay = "k-above-pay-" + uid;
   const clipDraw = "k-draw-" + uid;
   const n = s7.bcws.length;
-  const months = [...s7.bcws.map(([m]) => m), s7.endMonth];
+  const months = s7.bcws.map(([m]) => m);
+  if (!months.includes(s7.endMonth)) months.push(s7.endMonth);
   const nX = months.length;
   const xi = (i: number) => PL + (i * (PR - PL)) / (nX - 1);
   const xEnd = xi(n - 1);
@@ -598,7 +604,7 @@ export function Slide7({ step }: SlideProps) {
           const last = idx === s7.payments.length - 1;
           let pos: CSSProperties;
           if (last) {
-            pos = { right: 1920 - (x - 14), top: yy + 30 };
+            pos = { left: x + 14, top: yy + 26 };
           } else if (y(0) - yy >= 60) {
             pos = { left: x + 14, top: yy + 14 };
           } else {

@@ -234,9 +234,9 @@ export const s7 = {
     ["Nov-26", 18.8], ["Dec-26", 54.6], ["Jan-27", 231.9], ["Feb-27", 508.8], ["Mar-27", 554.7],
     ["Apr-27", 600.5], ["May-27", 636.0], ["Jun-27", 668.2], ["Jul-27", 826.0], ["Aug-27", 877.0],
     ["Sep-27", 931.8], ["Oct-27", 979.2], ["Nov-27", 1026.3], ["Dec-27", 1064.0], ["Jan-28", 1100.7],
-    ["Feb-28", 1141.1], ["Mar-28", 1188.4], ["Apr-28", 1227.5], ["May-28", 1256.5],
+    ["Feb-28", 1141.1], ["Mar-28", 1188.4], ["Apr-28", 1227.5], ["May-28", 1256.5], ["Jun-28", 1256.5],
   ] as [string, number][],
-  /** X axis extends one month past the last BCWS point (final payment). */
+  /** Last month on the X axis (final payment; BCWS stays flat at the BAC after acceptance). */
   endMonth: "Jun-28",
   /** Cumulative payments received, €k (collected one month after each milestone). */
   payments: [
@@ -320,8 +320,8 @@ export const s10 = {
     { date: "16 November 2026", name: "Internal kick-off", text: "9:00 to 11:00, scope, milestones, team and roles" },
     {
       date: "19 November 2026",
-      name: "Orders and client kick-off",
-      text: "GIS, simulator and SÉNECA ordered; kick-off with TRAGSA and the DGPCE",
+      name: "Client kick-off",
+      text: "Platforms ordered (GIS, simulator and SÉNECA) and kick-off with TRAGSA and the DGPCE",
     },
     { date: "23 November 2026", name: "M1: plan approved", text: "First payment, 5 % (48.750 €)" },
   ],

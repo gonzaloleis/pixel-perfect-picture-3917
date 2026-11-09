@@ -156,9 +156,9 @@ export function Slide10({ step }: SlideProps) {
       </Title>
       <div className="absolute top-[470px] left-[160px] grid w-[1600px] grid-cols-3 gap-8">
         {s10.cards.map((c, idx) => (
-          <Build key={c.date} at={2} step={step} i={idx} className="k-card flex h-[270px] flex-col p-10">
+          <Build key={c.date} at={2} step={step} i={idx} className="k-card flex h-[300px] flex-col p-10">
             <div className="k-small font-medium text-blue">{c.date}</div>
-            <div className="k-lead mt-auto text-ink">{c.name}</div>
+            <div className="k-lead mt-8 text-ink">{c.name}</div>
             <div className="k-small mt-3 text-ink-2">{c.text}</div>
           </Build>
         ))}
