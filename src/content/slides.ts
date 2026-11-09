@@ -141,7 +141,7 @@ export const s4 = {
       step: 2,
       date: "2027-04-09",
       title: "9 Apr 2027",
-      lines: ["M2 Design and infrastructure", "GIS in service, simulator and SÉNECA delivered"],
+      lines: ["M2 Design and infrastructure", "GIS in service, platforms delivered"],
       deadline: "Deadline: 30 Apr 2027, payment 30 %",
       pill: "15 days of slack",
       accent: "mint" as Accent,

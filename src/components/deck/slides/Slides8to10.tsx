@@ -56,14 +56,14 @@ export function Slide8({ step }: SlideProps) {
     <>
       <Title center>{s8.title}</Title>
       <div className="absolute top-[256px] left-[160px] grid w-[1600px] grid-cols-2 gap-10">
-        <FlipCard delay={AFTER_TITLE} className="k-card flex h-[320px] flex-col p-12">
+        <FlipCard delay={AFTER_TITLE} className="k-card flex h-[290px] flex-col p-10">
           <div>
             <Pill accent="mint">{s8.time.label}</Pill>
           </div>
           <div className="k-lead mt-auto text-ink">{s8.time.headline}</div>
           <div className="k-small mt-4 text-ink-2">{s8.time.detail}</div>
         </FlipCard>
-        <FlipCard delay={second} className="k-card flex h-[320px] flex-col p-12">
+        <FlipCard delay={second} className="k-card flex h-[290px] flex-col p-10">
           <div>
             <Pill accent="amber">{s8.cost.label}</Pill>
           </div>
@@ -71,10 +71,11 @@ export function Slide8({ step }: SlideProps) {
           <div className="k-body mt-4 font-medium text-amber">
             <CountText text={s8.cost.detail} active={step >= 1} delay={second + 0.3} />
           </div>
+          <div className="k-small mt-2 font-medium text-mint">{s8.cost.cash}</div>
         </FlipCard>
       </div>
 
-      <Build at={2} step={step} className="k-card absolute top-[612px] left-[160px] w-[1600px] px-12 pt-4 pb-5">
+      <Build at={2} step={step} className="k-card absolute top-[574px] left-[160px] w-[1600px] px-12 pt-3 pb-4">
         <div className="relative flex h-[34px]">
           <div className="w-[300px] shrink-0" />
           <div className="relative" style={{ width: W }}>
@@ -87,7 +88,7 @@ export function Slide8({ step }: SlideProps) {
           const result = b.kind === "result";
           const tone = result ? "bg-amber" : b.kind === "total" ? "bg-blue" : "bg-ink-2/40";
           return (
-            <Build key={b.label} at={2} step={step} i={idx} className="flex h-[58px] items-center">
+            <Build key={b.label} at={2} step={step} i={idx} className="flex h-[48px] items-center">
               <div className={cn("k-small w-[300px] shrink-0", result ? "font-medium text-amber" : "text-ink-2")}>{b.label}</div>
               <div className="relative h-[26px]" style={{ width: W }}>
                 <div className="absolute top-[-16px] bottom-[-16px] w-[2px] bg-ink/25" style={{ left: sx(0) - 1 }} />
@@ -104,7 +105,7 @@ export function Slide8({ step }: SlideProps) {
         })}
       </Build>
 
-      <Build at={3} step={step} className="k-small absolute top-[940px] left-[160px] w-[1600px] text-center text-ink-2">
+      <Build at={3} step={step} className="k-small absolute top-[962px] left-[160px] w-[1600px] text-center text-ink-2">
         {s8.footer}
       </Build>
     </>

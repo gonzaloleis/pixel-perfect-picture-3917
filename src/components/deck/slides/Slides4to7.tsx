@@ -84,8 +84,8 @@ const R_T0 = t(s4.ruler.from);
 const R_T1 = t(s4.ruler.to);
 const rx = (d: string) => RX0 + ((t(d) - R_T0) / (R_T1 - R_T0)) * (RX1 - RX0);
 
-const CARD_TOP = 256;
-const CARD_H = 300;
+const CARD_TOP = 236;
+const CARD_H = 356;
 const CARD_GAP = 24;
 const CARD_W = Math.floor((RX1 + 20 - 140 - CARD_GAP * (s4.milestones.length - 1)) / s4.milestones.length);
 const CARD_LEFT = 140;
@@ -273,7 +273,7 @@ export function Slide4({ step }: SlideProps) {
             <div className="text-[38px] leading-none whitespace-nowrap font-semibold tracking-[-0.03em] text-ink tabular-nums">{m.title}</div>
             <div className="mt-4 flex flex-col gap-1">
               {m.lines.map((l, li) => (
-                <div key={l} className={cn("k-small", li === 0 ? "font-medium text-ink" : "text-ink-2")}>
+                <div key={l} className={cn(li === 0 ? "k-small font-medium text-ink" : "text-[19px] leading-snug text-ink-2")}>
                   {l}
                 </div>
               ))}
@@ -308,8 +308,8 @@ export function Slide5({ step }: SlideProps) {
       <div className="absolute top-[284px] left-[160px] w-[820px]">
         {s5.units.map((u, idx) => (
           <Build key={u.name} at={1} step={step} i={idx + 1} className="flex h-[62px] items-center border-b border-hair last:border-b-0">
-            <div className="w-[360px] shrink-0 text-[20px] leading-tight text-ink-2">{u.name}</div>
-            <div className="w-[320px]">
+            <div className="w-[400px] shrink-0 pr-4 text-[20px] leading-tight text-ink-2">{u.name}</div>
+            <div className="w-[280px]">
               <GrowBar
                 active={step >= 1}
                 fraction={u.hours / max}
@@ -350,7 +350,7 @@ const CX = 430;
 const CY = 610;
 const R = 190;
 const RING = 44;
-const LABEL_X = 750;
+const LABEL_X = 720;
 
 function arc(a0: number, a1: number, r = R) {
   const rad = (a: number) => (a * Math.PI) / 180;
@@ -447,7 +447,7 @@ export function Slide6({ step }: SlideProps) {
 
 const PL = 240;
 const PR = 1640;
-const PT = 500;
+const PT = 530;
 const PB = 900;
 const DRAW_S = 2;
 
@@ -471,8 +471,10 @@ export function Slide7({ step }: SlideProps) {
   const clipPay = "k-above-pay-" + uid;
   const clipDraw = "k-draw-" + uid;
   const n = s7.bcws.length;
-  const months = s7.bcws.map(([m]) => m);
-  const xi = (i: number) => PL + (i * (PR - PL)) / (n - 1);
+  const months = [...s7.bcws.map(([m]) => m), s7.endMonth];
+  const nX = months.length;
+  const xi = (i: number) => PL + (i * (PR - PL)) / (nX - 1);
+  const xEnd = xi(n - 1);
   const xm = (m: string) => xi(Math.max(months.indexOf(m), 0));
   const y = (v: number) => PB - (v / s7.yMax) * (PB - PT);
 
@@ -491,15 +493,18 @@ export function Slide7({ step }: SlideProps) {
   s7.payments.forEach((pm) => {
     above += ` H ${xm(pm.month)} V ${y(pm.value)}`;
   });
-  above += ` H ${xi(n - 1) + 2} V ${PT - 40} Z`;
+  above += ` H ${xi(nX - 1) + 2} V ${PT - 40} Z`;
 
   const pre = s7.payments;
-  const preX = xm(s7.prefinancing.month);
-  const preIdx = months.indexOf(s7.prefinancing.month);
-  const prePaid = [...pre].reverse().find((pm) => months.indexOf(pm.month) <= preIdx)?.value ?? 0;
-  const preY = (y(s7.bcws[preIdx]?.[1] ?? 0) + y(prePaid)) / 2;
-  const [preA = "", preB = ""] = s7.prefinancing.label.split(/(?<=:) /);
-  const preNextX = xm(s7.payments.find((pm) => months.indexOf(pm.month) > preIdx)?.month ?? s7.prefinancing.month);
+  // Amber labels in the shaded gap between BCWS and payments, right-aligned to the next payment step.
+  const peakLabels = s7.peaks.map((pk) => {
+    const idx = months.indexOf(pk.month);
+    const paid = [...pre].reverse().find((pm) => months.indexOf(pm.month) <= idx)?.value ?? 0;
+    const yy = 0.65 * y(s7.bcws[idx]?.[1] ?? 0) + 0.35 * y(paid);
+    const [a = "", b = ""] = pk.label.split(/(?<=:) /);
+    const nextX = xm(pre.find((pm) => months.indexOf(pm.month) > idx)?.month ?? pk.month);
+    return { key: pk.month, a, b, y: yy, nextX };
+  });
 
   // Floating label follows the drawing tip
   const fi = p * (n - 1);
@@ -508,7 +513,7 @@ export function Slide7({ step }: SlideProps) {
   const v0 = s7.bcws[i0]?.[1] ?? 0;
   const v1 = s7.bcws[i0 + 1]?.[1] ?? v0;
   const tipV = v0 + (v1 - v0) * frac;
-  const tipX = PL + p * (PR - PL);
+  const tipX = PL + p * (xEnd - PL);
   const tipY = y(tipV);
   const tipMonth = months[Math.round(fi)] ?? "";
   const drawing = !isStatic && chartOn && p > 0 && p < 1;
@@ -572,13 +577,13 @@ export function Slide7({ step }: SlideProps) {
         <DrawPath d={pay} active={chartOn && p >= 1} className="stroke-mint [stroke-width:3px]" duration={1.2} />
         {chartOn && (
           <g style={revealStyle(1.1)}>
-            <text x={PR + 16} y={y(pre[pre.length - 1]?.value ?? 0) + 24} className="k-label fill-mint" style={{ fontSize: 18 }}>
+            <text x={PR + 16} y={y(pre[pre.length - 1]?.value ?? 0) + 6} className="k-label fill-mint" style={{ fontSize: 18 }}>
               {s7.lineLabels.payments}
             </text>
           </g>
         )}
         {chartOn && p >= 1 && (
-          <text x={PR + 16} y={y(s7.bcws[n - 1]?.[1] ?? 0) - 10} className="k-label fill-ink" style={{ fontSize: 18 }}>
+          <text x={xEnd + 16} y={y(s7.bcws[n - 1]?.[1] ?? 0) + 6} className="k-label fill-ink" style={{ fontSize: 18 }}>
             {s7.lineLabels.bcws}
           </text>
         )}
@@ -611,13 +616,23 @@ export function Slide7({ step }: SlideProps) {
             </div>
           );
         })}
+      {chartOn &&
+        peakLabels.map((pk) => (
+          <div
+            key={pk.key}
+            className="k-label pointer-events-none absolute rounded-[10px] bg-surface px-3 py-[6px] text-right whitespace-nowrap text-amber shadow-[var(--shadow-card)]"
+            style={{ right: 1920 - (pk.nextX - 14), top: pk.y - 24, fontSize: 18, lineHeight: 1.25, ...revealStyle(1.4) }}
+          >
+            <div>{pk.a}</div>
+            <div>{pk.b}</div>
+          </div>
+        ))}
       {chartOn && (
         <div
-          className="k-label pointer-events-none absolute rounded-[10px] bg-surface px-3 py-[6px] text-right whitespace-nowrap text-amber shadow-[var(--shadow-card)]"
-          style={{ right: 1920 - (preNextX - 14), top: preY - 12, fontSize: 18, lineHeight: 1.25, ...revealStyle(1.4) }}
+          className="k-label pointer-events-none absolute font-normal text-ink-2"
+          style={{ left: PL, top: PB + 62, fontSize: 16, ...revealStyle(1.6) }}
         >
-          <div>{preA}</div>
-          <div>{preB}</div>
+          {s7.notes.join(" ")}
         </div>
       )}
 
