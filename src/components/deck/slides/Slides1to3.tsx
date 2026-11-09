@@ -28,7 +28,7 @@ export function Slide1({ step }: SlideProps) {
 }
 
 export function Slide2({ step }: SlideProps) {
-  const cols = "grid grid-cols-[360px_470px_1fr] items-baseline";
+  const cols = "grid grid-cols-[240px_380px_380px_1fr] items-baseline";
   return (
     <>
       <Title center>{s2.title}</Title>
@@ -46,7 +46,7 @@ export function Slide2({ step }: SlideProps) {
             at={r.step}
             step={step}
             i={idx % 2}
-            className={cn(cols, "border-b border-hair py-[20px] last:border-b-0")}
+            className={cn(cols, "border-b border-hair py-[18px] last:border-b-0")}
           >
             <div className="k-small text-ink-2">{r.item}</div>
             <div className="k-small text-ink">
@@ -55,6 +55,7 @@ export function Slide2({ step }: SlideProps) {
             <div className={cn("k-small font-medium", r.accent ? accentText[r.accent] : "text-ink")}>
               {r.count ? <CountText text={r.contract} active={step >= r.step} duration={2000} /> : r.contract}
             </div>
+            <div className="k-small font-semibold text-ink">{r.baseline}</div>
           </Build>
         ))}
       </Build>
@@ -140,7 +141,7 @@ export function Slide3({ step }: SlideProps) {
           const isChecked = idx < checked;
           const isSpinning = running && idx === checked;
           return (
-            <div key={n} className="flex h-[46px] items-center gap-5 border-b border-hair last:border-b-0">
+            <div key={n} className="flex h-[40px] items-center gap-5 border-b border-hair last:border-b-0">
               <span className="flex w-[26px] shrink-0 items-center justify-center">
                 {isChecked ? (
                   isStatic ? (
@@ -178,13 +179,14 @@ export function Slide3({ step }: SlideProps) {
         </div>
       </Build>
 
-      <div className="absolute top-[838px] left-[150px] grid w-[640px] grid-cols-3 gap-4">
+      <div className="absolute top-[822px] left-[150px] grid w-[640px] grid-cols-3 gap-4">
         {s3.stats.map((s, idx) => (
-          <Build key={s.unit} at={3} step={step} i={idx} className="k-inset flex h-[124px] flex-col justify-center px-6">
+          <Build key={s.unit} at={3} step={step} i={idx} className="k-inset flex h-[152px] flex-col justify-center px-6">
             <span className="k-figure text-[48px] text-ink">
               <CountText text={s.value} active={step >= 3} />
             </span>
             <span className="text-[22px] text-ink-2">{s.unit}</span>
+            {"sub" in s && s.sub ? <span className="mt-1 text-[16px] leading-tight text-ink-2">{s.sub}</span> : null}
           </Build>
         ))}
       </div>
