@@ -21,9 +21,9 @@ export const captures = {
   gantt: { file: "gantt.png", description: "Gantt chart with baseline, phases collapsed", width: 1000, height: 620 },
   resourceGraph: {
     file: "resource-graph.png",
-    description: "Resource usage, client staff overallocations",
-    width: 1620,
-    height: 240,
+    description: "Resource graph, TRAGSA technical leads overallocation",
+    width: 740,
+    height: 362,
   },
   costOverview: { file: "cost-overview.png", description: "Cost overview report", width: 650, height: 436 },
   cashFlow: { file: "cash-flow.png", description: "Cash flow report, baseline cost", width: 460, height: 352 },

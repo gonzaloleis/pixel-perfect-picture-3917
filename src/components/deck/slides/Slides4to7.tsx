@@ -323,10 +323,10 @@ export function Slide5({ step }: SlideProps) {
           </Build>
         ))}
       </div>
-      <Build at={2} step={step} className="absolute top-[752px] left-[150px]">
-        <Capture slot={s5.capture} width={1620} />
+      <Build at={2} step={step} className="absolute top-[272px] left-[1030px]">
+        <Capture slot={s5.capture} width={740} />
       </Build>
-      <div className="absolute top-[284px] left-[1030px] flex w-[740px] flex-col gap-6">
+      <div className="absolute top-[780px] left-[150px] grid w-[1620px] grid-cols-2 gap-8">
         {s5.cards.map((c, idx) => (
           <Build
             key={c.text}
