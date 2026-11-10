@@ -180,6 +180,7 @@ export const s4 = {
 /* ---------------- Slide 5 ---------------- */
 export const s5 = {
   title: "11.255 hours across seven units.",
+  captureNote: "TRAGSA technical leads: up to 450 % against a capacity of 300 %",
   units: [
     { name: "Applications", hours: 6744, label: "6.744 h" },
     { name: "Projects and Operations Management", hours: 2018, label: "2.018 h" },
@@ -251,8 +252,8 @@ export const s7 = {
   lineLabels: { bcws: "BCWS", payments: "Payments" },
   /** Amber labels in the shaded gap, right-aligned to the next payment step. */
   peaks: [
-    { month: "Apr-27", label: "Peak financing need: 347.892 € (April 2027)" },
-    { month: "Feb-28", label: "Second peak: 219.889 € (February 2028)" },
+    { month: "Apr-27", label: "Peak cash need: 347.892 € (Apr 2027)" },
+    { month: "Feb-28", label: "Second peak: 219.889 € (Feb 2028)" },
   ],
   notes: [
     "Payments collected one month after each milestone.",

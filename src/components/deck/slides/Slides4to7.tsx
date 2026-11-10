@@ -325,6 +325,7 @@ export function Slide5({ step }: SlideProps) {
       </div>
       <Build at={2} step={step} className="absolute top-[272px] left-[1030px]">
         <Capture slot={s5.capture} width={740} />
+        <div className="mt-3 w-[740px] text-[20px] font-medium text-[#A40000]">{s5.captureNote}</div>
       </Build>
       <div className="absolute top-[780px] left-[150px] grid w-[1620px] grid-cols-2 gap-8">
         {s5.cards.map((c, idx) => (
@@ -507,9 +508,9 @@ export function Slide7({ step }: SlideProps) {
     const idx = months.indexOf(pk.month);
     const paid = [...pre].reverse().find((pm) => months.indexOf(pm.month) <= idx)?.value ?? 0;
     const yy = 0.65 * y(s7.bcws[idx]?.[1] ?? 0) + 0.35 * y(paid);
-    const [a = "", b = ""] = pk.label.split(/(?<=:) /);
+    const lines = pk.label.split(/(?<=:) |(?<=need) (?=\()/);
     const nextX = xm(pre.find((pm) => months.indexOf(pm.month) > idx)?.month ?? pk.month);
-    return { key: pk.month, a, b, y: yy, nextX };
+    return { key: pk.month, lines, y: yy, nextX };
   });
 
   // Floating label follows the drawing tip
@@ -627,10 +628,11 @@ export function Slide7({ step }: SlideProps) {
           <div
             key={pk.key}
             className="k-label pointer-events-none absolute rounded-[10px] bg-surface px-3 py-[6px] text-right whitespace-nowrap text-amber shadow-[var(--shadow-card)]"
-            style={{ right: 1920 - (pk.nextX - 14), top: pk.y - 24, fontSize: 18, lineHeight: 1.25, ...revealStyle(1.4) }}
+            style={{ right: 1920 - (pk.nextX - 6), top: pk.y - 9 * pk.lines.length + 14, fontSize: 15, lineHeight: 1.2, ...revealStyle(1.4) }}
           >
-            <div>{pk.a}</div>
-            <div>{pk.b}</div>
+            {pk.lines.map((l) => (
+              <div key={l}>{l}</div>
+            ))}
           </div>
         ))}
       {chartOn && (
